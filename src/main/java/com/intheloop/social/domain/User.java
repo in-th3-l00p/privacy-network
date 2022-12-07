@@ -31,22 +31,32 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean enabled = false;
 
+    @ManyToMany
+    private Set<Authority> authorities;
+
+    @Column(nullable = false)
+    private LocalDate registrationDate;
+
     @Column(nullable = false)
     private String firstName;
 
     @Column(nullable = false)
     private String lastName;
 
+    @Column
+    private String description;
+
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    @Column(nullable = false)
-    private LocalDate registrationDate;
+    @OneToMany
+    Set<Friendship> friendships;
 
-    @ManyToMany
-    private Set<Authority> authorities;
+    @OneToMany
+    Set<FriendshipRequest> friendshipRequests;
 
     public User() {
+        registrationDate = LocalDate.now();
     }
 
     public Long getId() {
@@ -150,5 +160,29 @@ public class User implements UserDetails {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<Friendship> getFriendships() {
+        return friendships;
+    }
+
+    public void setFriendships(Set<Friendship> friendships) {
+        this.friendships = friendships;
+    }
+
+    public Set<FriendshipRequest> getFriendshipRequests() {
+        return friendshipRequests;
+    }
+
+    public void setFriendshipRequests(Set<FriendshipRequest> friendshipRequests) {
+        this.friendshipRequests = friendshipRequests;
     }
 }
