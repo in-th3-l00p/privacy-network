@@ -1,4 +1,4 @@
-package com.intheloop.social.service.dto;
+package com.intheloop.social.util.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

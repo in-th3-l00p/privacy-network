@@ -1,0 +1,31 @@
+$form-xPadding: 10vw;
+$form-xPadding-minWidth: 400px;
+$form-gap: 20px;
+$formGroup-gap: 20px;
+$formGroup-labelWidth: 110px;
+$formGroup-labelFontSize: 1.2rem;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $form-gap;
+
+  @media screen and (min-width: $form-xPadding-minWidth) {
+    margin-left: $form-xPadding;
+    margin-right: $form-xPadding;
+  }
+
+  .formGroup {
+    display: flex;
+    gap: $formGroup-gap;
+    place-items: center;
+
+    label {
+      width: $formGroup-labelWidth;
+      font-size: $formGroup-labelFontSize;
+      margin-bottom: 0;
+      vertical-align: center;
+      flex-shrink: 0;
+    }
+  }
+}
