@@ -5,7 +5,7 @@ import axios from "axios";
 import App from './App';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./index.scss";
+import "./styles/index.scss";
 
 axios.defaults.baseURL = "http://localhost:8080";
 

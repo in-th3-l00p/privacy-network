@@ -22,7 +22,17 @@ public class RestErrors {
     );
 
     public static ServerError userNotFoundError = new ServerError(
-        "User not found",
-        "The user doesn't exist."
+            "User not found",
+            "The user doesn't exist."
+    );
+
+    public static ServerError unauthorizedError = new ServerError(
+            "Unauthorized",
+            "Your authorization session is bad."
+    );
+
+    public static ServerError invalidPostError = new ServerError(
+            "Post creation failed",
+            "The given post data are bad."
     );
 }

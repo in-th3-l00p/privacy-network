@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Alert, Button, Col, Container, Form, Row} from "react-bootstrap";
 // @ts-ignore
 import style from "../styles/form.module.scss";
@@ -6,6 +6,7 @@ import LoadingPage from "../util/components/loading/LoadingPage";
 import axios from "axios";
 import {ErrorType} from "../util/errorHandling";
 import ErrorAlert from "../util/components/alerts";
+import {AuthenticationContext, IAuthenticationContext} from "../util/authentication";
 
 const Home = () => {
     const [username, setUsername] = useState<string>("intheloop");
@@ -16,8 +17,16 @@ const Home = () => {
     const [password, setPassword] = useState<string>("test12345");
     const [confirmPassword, setConfirmPassword] = useState<string>("test12345");
 
-    const [loading, setLoading] = useState<boolean>(false);
+    const authentication = useContext<IAuthenticationContext>(AuthenticationContext);
+    const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<ErrorType | null>();
+
+    useEffect(() => {
+        if (authentication.authenticated)
+            window.location.href = "/feed";
+        else
+            setLoading(false);
+    }, [])
 
     const checkValid = () => {
         return (

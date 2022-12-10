@@ -55,6 +55,9 @@ public class User implements UserDetails {
     @OneToMany
     Set<FriendshipRequest> friendshipRequests;
 
+    @OneToMany
+    Set<Post> posts;
+
     public User() {
         registrationDate = LocalDate.now();
     }
@@ -184,5 +187,13 @@ public class User implements UserDetails {
 
     public void setFriendshipRequests(Set<FriendshipRequest> friendshipRequests) {
         this.friendshipRequests = friendshipRequests;
+    }
+
+    public Set<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Post> posts) {
+        this.posts = posts;
     }
 }

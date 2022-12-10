@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {Alert, Button, Container, Form} from "react-bootstrap";
 // @ts-ignore
 import style from "../styles/form.module.scss";
@@ -6,10 +6,12 @@ import {useLocation} from "react-router-dom";
 import axios from "axios";
 import ErrorAlert from "../util/components/alerts";
 import {ErrorType} from "../util/errorHandling";
+import {AuthenticationContext, setAuthentication} from "../util/authentication";
 
 const Login = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const authentication = useContext(AuthenticationContext);
 
     const location = useLocation();
     const [showRegistered, setShowRegistered] = useState<boolean>(location.search === "?registered");
@@ -28,8 +30,12 @@ const Login = () => {
                 className={style.form}
                 onSubmit={(event) => {
                     event.preventDefault();
+                    setLoading(true);
                     axios.post("/api/login", {username, password})
-                        .then(resp => console.log("logged in", resp))
+                        .then(resp => {
+                            setAuthentication(true, resp.data);
+                            window.location.href = "/";
+                        })
                         .catch(err => setError(err));
                 }}
             >
