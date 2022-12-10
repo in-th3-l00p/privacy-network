@@ -3,6 +3,7 @@ package com.intheloop.social.web.rest;
 import com.intheloop.social.security.authentication.TokenManager;
 import com.intheloop.social.service.UserService;
 import com.intheloop.social.service.dto.UserDTO;
+import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.web.rest.exceptions.UserNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody Credentials credentials) {
+    public ResponseEntity<?> authenticate(@RequestBody Credentials credentials) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 credentials.getUsername(),
                 credentials.getPassword()
@@ -48,13 +49,13 @@ public class AuthenticationController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return ResponseEntity.ok(tokenManager.createJWT(authentication));
         } catch (DisabledException exception) {
-            return ResponseEntity.badRequest().body("Account disabled");
+            return ResponseEntity.badRequest().body(RestErrors.disabledAccount);
         } catch (LockedException exception) {
-            return ResponseEntity.badRequest().body("Account locked");
+            return ResponseEntity.badRequest().body(RestErrors.lockedError);
         } catch (BadCredentialsException exception) {
-            return ResponseEntity.badRequest().body("Username or password are wrong");
+            return ResponseEntity.badRequest().body(RestErrors.badCredentialsError);
         } catch (Exception exception) {
-            return ResponseEntity.badRequest().body("Authentication failed");
+            return ResponseEntity.badRequest().body(RestErrors.authenticationError);
         }
     }
 
@@ -77,7 +78,7 @@ public class AuthenticationController {
         try {
             userService.activateUser(userId);
         } catch (UserNotFoundException exception) {
-            return ResponseEntity.badRequest().body("User not found");
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
         }
 
         return ResponseEntity.ok("User activated");

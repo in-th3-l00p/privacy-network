@@ -46,6 +46,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setBirthDate(userDTO.getBirthDate());
         user.setRegistrationDate(LocalDate.now());
+        user.setEnabled(true); // development purposes
         userRepository.save(user);
     }
 
