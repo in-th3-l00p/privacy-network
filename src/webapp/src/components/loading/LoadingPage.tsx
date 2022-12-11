@@ -18,7 +18,7 @@ const LoadingPage = () => {
     }, [])
 
     return (
-        <Container className={"d-flex flex-column p-5 text-center align-items-center"}>
+        <Container className={"background-default d-flex flex-column p-5 text-center align-items-center"}>
             <h3>{text}</h3>
             <Spinner animation={"border"} variant={"primary"}>
                 <span className={"visually-hidden"}>Loading spinner</span>

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 
 @Service
 public class PostService {
@@ -31,6 +30,7 @@ public class PostService {
         post.setPostDate(LocalDateTime.now());
         post.setLikes(0L);
         post.setDislikes(0L);
+        post.setUser(user);
         if (Objects.equals(postDTO.getVisibility(), "public"))
             post.setVisibility(Post.Visibility.PUBLIC);
         else if (Objects.equals(postDTO.getVisibility(), "private"))
@@ -38,12 +38,7 @@ public class PostService {
         else
             throw new Exception("Invalid visibility.");
 
-        post = postRepository.save(post);
-        Set<Post> posts = user.getPosts();
-        posts.add(post);
-        user.setPosts(posts);
-
-        userRepository.save(user);
+        postRepository.save(post);
     }
 
     public Collection<Post> getUserPosts(User user) {

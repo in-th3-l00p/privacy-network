@@ -4,7 +4,7 @@ import {Alert, Button, Container, Form} from "react-bootstrap";
 import style from "../styles/form.module.scss";
 import {useLocation} from "react-router-dom";
 import axios from "axios";
-import ErrorAlert from "../util/components/alerts";
+import ErrorAlert from "../components/alerts";
 import {ErrorType} from "../util/errorHandling";
 import {AuthenticationContext, setAuthentication} from "../util/authentication";
 

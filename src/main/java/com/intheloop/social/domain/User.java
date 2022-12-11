@@ -55,7 +55,7 @@ public class User implements UserDetails {
     @OneToMany
     Set<FriendshipRequest> friendshipRequests;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     Set<Post> posts;
 
     public User() {

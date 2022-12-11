@@ -2,10 +2,10 @@ import React, {useContext, useEffect, useState} from "react";
 import {Alert, Button, Col, Container, Form, Row} from "react-bootstrap";
 // @ts-ignore
 import style from "../styles/form.module.scss";
-import LoadingPage from "../util/components/loading/LoadingPage";
+import LoadingPage from "../components/loading/LoadingPage";
 import axios from "axios";
 import {ErrorType} from "../util/errorHandling";
-import ErrorAlert from "../util/components/alerts";
+import ErrorAlert from "../components/alerts";
 import {AuthenticationContext, IAuthenticationContext} from "../util/authentication";
 
 const Home = () => {
@@ -19,7 +19,7 @@ const Home = () => {
 
     const authentication = useContext<IAuthenticationContext>(AuthenticationContext);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<ErrorType | null>();
+    const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
         if (authentication.authenticated)

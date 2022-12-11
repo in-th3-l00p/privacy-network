@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import userService from "../service/userService";
 
 export interface Authentication {
     authenticated: boolean;
@@ -17,12 +17,9 @@ export const setAuthentication = async (authenticated: boolean, token: string | 
     localStorage.setItem("authenticated", token ? "true" : "false");
     if (authenticated && token) {
         localStorage.setItem("token", token);
-        const userDetails = await axios.get(
-            "/api/public/user",
-            {headers: getAuthenticationHeader(token)}
-        );
-        localStorage.setItem("userId", String(userDetails.data.id));
-        localStorage.setItem("username", userDetails.data.username);
+        const userDetails = await userService.getCurrentUser(token);
+        localStorage.setItem("userId", String(userDetails.id));
+        localStorage.setItem("username", userDetails.username);
     } else
         localStorage.setItem("authenticated", "false");
 }

@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction} from "react";
 import {Alert} from "react-bootstrap";
-import {ErrorType} from "../errorHandling";
+import {ErrorType} from "../util/errorHandling";
 import {AxiosError} from "axios";
 
 
