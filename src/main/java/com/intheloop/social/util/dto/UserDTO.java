@@ -1,6 +1,5 @@
 package com.intheloop.social.util.dto;
 
-import com.intheloop.social.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,13 +17,4 @@ public class UserDTO {
     private String lastName;
     private LocalDate birthDate;
     private LocalDate registrationDate;
-
-    public UserDTO(User user) {
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.birthDate = user.getBirthDate();
-        this.registrationDate = user.getRegistrationDate();
-    }
 }

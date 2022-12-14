@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {Alert, Button, Col, Container, Form, Row} from "react-bootstrap";
 // @ts-ignore
 import style from "../styles/form.module.scss";
-import LoadingPage from "../components/loading/LoadingPage";
+import LoadingPage from "../components/LoadingPage";
 import axios from "axios";
 import {ErrorType} from "../util/errorHandling";
 import ErrorAlert from "../components/alerts";

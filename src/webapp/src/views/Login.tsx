@@ -33,8 +33,8 @@ const Login = () => {
                     setLoading(true);
                     axios.post("/api/login", {username, password})
                         .then(resp => {
-                            setAuthentication(true, resp.data);
-                            window.location.href = "/";
+                            setAuthentication(true, resp.data)
+                                .then(() => window.location.href = "/");
                         })
                         .catch(err => setError(err));
                 }}

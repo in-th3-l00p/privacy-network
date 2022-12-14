@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Button, Col, Container, FloatingLabel, Form, Row} from "react-bootstrap";
+import {Button, ButtonGroup, Col, Container, FloatingLabel, Form, Row} from "react-bootstrap";
 import {ErrorType} from "../util/errorHandling";
 import axios from "axios";
 import {AuthenticationContext, getAuthenticationHeader} from "../util/authentication";
 import ErrorAlert from "../components/alerts";
-import LoadingPage from "../components/loading/LoadingPage";
-import {Post, ServerPost} from "../components/serverTypes";
+import LoadingPage from "../components/LoadingPage";
+import {Post, ServerPost} from "../util/serverTypes";
 import userService from "../service/userService";
 
 const PostForm: React.FC<{
@@ -64,7 +64,7 @@ const PostForm: React.FC<{
                 </Form.Select>
                 <Button
                     type={"submit"}
-                    variant={"primary"}
+                    variant={"dark"}
                     disabled={!text || loading}
                 >
                     Post
@@ -89,7 +89,15 @@ const PostDisplay: React.FC<{ post: Post }> = ({post}) => {
                     <p className={"text-muted"} style={{textAlign: "right"}}>{formatDate(post.postDate)}</p>
                 </Col>
             </Row>
-            <p>{post.text}</p>
+            <Row><Col><p>{post.text}</p></Col></Row>
+            <Row>
+                <Col>
+                    <ButtonGroup>
+                        <Button variant={"dark"}>👍</Button>
+                        <Button variant={"dark"}>👎</Button>
+                    </ButtonGroup>
+                </Col>
+            </Row>
         </div>
     )
 }

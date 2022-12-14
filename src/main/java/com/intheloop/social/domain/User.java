@@ -1,6 +1,7 @@
 package com.intheloop.social.domain;
 
 import jakarta.persistence.*;
+import lombok.ToString;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 @Table
 @Entity
+@ToString
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,7 +4,7 @@ import com.intheloop.social.domain.User;
 import com.intheloop.social.service.UserService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
-import com.intheloop.social.util.dto.UserDTO;
+import com.intheloop.social.util.dto.PublicUserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ public class PublicUserController {
         Optional<User> user = userService.getUserById(userId);
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-        return ResponseEntity.ok(new UserDTO(user.get()));
+        return ResponseEntity.ok(new PublicUserDTO(user.get()));
     }
 
     @GetMapping("/current")
@@ -38,6 +38,6 @@ public class PublicUserController {
         Optional<User> user = userService.getUserByUsername(username.get());
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-        return ResponseEntity.ok(user.get());
+        return ResponseEntity.ok(new PublicUserDTO(user.get()));
     }
 }
