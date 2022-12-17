@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import Home from "./views/Home";
-import {Button, Container, Form, Nav, Navbar} from "react-bootstrap";
+import {Button, Container, Form, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import Login from "./views/Login";
 import {
     AuthenticationContext,
@@ -17,8 +17,6 @@ import LoadingPage from "./components/LoadingPage";
 import Search from "./views/Search";
 
 const UnauthenticatedNav = () => {
-    const authentication = useContext(AuthenticationContext);
-
     return (
         <Nav className={"ms-auto"}>
             <Nav.Link href={"/login"}>Login</Nav.Link>
@@ -63,11 +61,15 @@ const AuthenticatedNav = () => {
                 </Form>
             </Nav>
             <Nav className="ms-auto">
-                <Nav.Link href={`/profile/${authentication.userId}`}>{authentication.username}</Nav.Link>
-                <Nav.Link onClick={() => {
-                    setAuthentication(false, null);
-                    window.location.href = "/";
-                }}>Log out</Nav.Link>
+                <NavDropdown title={authentication.username}>
+                    <NavDropdown.Item href={`/profile/${authentication.userId}`}>View profile</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => {
+                        setAuthentication(false, null);
+                        window.location.href = "/";
+                    }}>
+                        Log out
+                    </NavDropdown.Item>
+                </NavDropdown>
             </Nav>
         </>
     );
