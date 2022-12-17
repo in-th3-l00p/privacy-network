@@ -1,0 +1,249 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="intheloop (generated)" id="1671282424536-1">
+        <createTable tableName="authority">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="authority" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-2">
+        <createTable tableName="conversation">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-3">
+        <createTable tableName="conversation_messages">
+            <column name="conversation_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="messages_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-4">
+        <createTable tableName="friendship">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="creation_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="NULL" name="conversation_id" type="BIGINT"/>
+            <column name="user1_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user2_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-5">
+        <createTable tableName="friendship_request">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column defaultValueComputed="NULL" name="receiver_id" type="BIGINT"/>
+            <column defaultValueComputed="NULL" name="requester_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-6">
+        <createTable tableName="message">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="content" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="NULL" name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-7">
+        <createTable tableName="post">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="dislikes" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="likes" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="post_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visibility" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="NULL" name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-8">
+        <createTable tableName="user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="account_non_expired" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_non_locked" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credentials_non_expired" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="enabled" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registration_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-9">
+        <createTable tableName="user_authorities">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="authorities_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-10">
+        <createIndex indexName="FK3uos929jau1n37onhk405wbse" tableName="friendship">
+            <column name="user1_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-11">
+        <createIndex indexName="FK72mt33dhhs48hf9gcqrq4fxte" tableName="post">
+            <column defaultValueComputed="NULL" name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-12">
+        <createIndex indexName="FKb3y6etti1cfougkdr0qiiemgv" tableName="message">
+            <column defaultValueComputed="NULL" name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-13">
+        <createIndex indexName="FKdd8lhvujos470g40gikxj22mb" tableName="user_authorities">
+            <column name="authorities_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-14">
+        <createIndex indexName="FKf11s4opi26a5h6tq45vc8q6sv" tableName="friendship">
+            <column defaultValueComputed="NULL" name="conversation_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-15">
+        <createIndex indexName="FKmvikr5lcd6nemcbh5qi2xmlyk" tableName="friendship_request">
+            <column defaultValueComputed="NULL" name="receiver_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-16">
+        <createIndex indexName="FKq71du22g31mjeagf9uwks6hj" tableName="friendship">
+            <column name="user2_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-17">
+        <createIndex indexName="FKrv8bwqoiltcgh5bgpfxqjxpuw" tableName="friendship_request">
+            <column defaultValueComputed="NULL" name="requester_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-18">
+        <addForeignKeyConstraint baseColumnNames="user1_id" baseTableName="friendship"
+                                 constraintName="FK3uos929jau1n37onhk405wbse" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-19">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="post"
+                                 constraintName="FK72mt33dhhs48hf9gcqrq4fxte" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-20">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="message"
+                                 constraintName="FKb3y6etti1cfougkdr0qiiemgv" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-21">
+        <addForeignKeyConstraint baseColumnNames="authorities_id" baseTableName="user_authorities"
+                                 constraintName="FKdd8lhvujos470g40gikxj22mb" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="authority" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-22">
+        <addForeignKeyConstraint baseColumnNames="conversation_id" baseTableName="friendship"
+                                 constraintName="FKf11s4opi26a5h6tq45vc8q6sv" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="conversation" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-23">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_authorities"
+                                 constraintName="FKmj13d0mnuj4cd8b6htotbf9mm" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-24">
+        <addForeignKeyConstraint baseColumnNames="receiver_id" baseTableName="friendship_request"
+                                 constraintName="FKmvikr5lcd6nemcbh5qi2xmlyk" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-25">
+        <addForeignKeyConstraint baseColumnNames="conversation_id" baseTableName="conversation_messages"
+                                 constraintName="FKowwk6j0v3ydi001gu4m5lb39d" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="conversation" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-26">
+        <addForeignKeyConstraint baseColumnNames="user2_id" baseTableName="friendship"
+                                 constraintName="FKq71du22g31mjeagf9uwks6hj" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-27">
+        <addForeignKeyConstraint baseColumnNames="requester_id" baseTableName="friendship_request"
+                                 constraintName="FKrv8bwqoiltcgh5bgpfxqjxpuw" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="intheloop (generated)" id="1671282424536-28">
+        <addForeignKeyConstraint baseColumnNames="messages_id" baseTableName="conversation_messages"
+                                 constraintName="FKsrkwqqihpmo60bbny5xibdx3r" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="message" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
