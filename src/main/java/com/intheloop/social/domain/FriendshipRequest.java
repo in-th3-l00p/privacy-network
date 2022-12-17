@@ -10,19 +10,19 @@ public class FriendshipRequest {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id")
-    private User creator;
+    @JoinColumn(name = "requester_id")
+    private User requester;
 
     @ManyToOne
-    @JoinColumn(name = "questioned_id")
-    private User questioned;
+    @JoinColumn(name = "receiver_id")
+    private User receiver;
 
     public FriendshipRequest() {
     }
 
-    public FriendshipRequest(User creator, User questioned) {
-        this.creator = creator;
-        this.questioned = questioned;
+    public FriendshipRequest(User requester, User receiver) {
+        this.requester = requester;
+        this.receiver = receiver;
     }
 
     public Long getId() {
@@ -33,19 +33,19 @@ public class FriendshipRequest {
         this.id = id;
     }
 
-    public User getCreator() {
-        return creator;
+    public User getRequester() {
+        return requester;
     }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
+    public void setRequester(User creator) {
+        this.requester = creator;
     }
 
-    public User getQuestioned() {
-        return questioned;
+    public User getReceiver() {
+        return receiver;
     }
 
-    public void setQuestioned(User questioned) {
-        this.questioned = questioned;
+    public void setReceiver(User questioned) {
+        this.receiver = questioned;
     }
 }

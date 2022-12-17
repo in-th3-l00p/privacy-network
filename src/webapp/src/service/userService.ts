@@ -13,7 +13,7 @@ export interface UserService {
 export class UserServiceImpl implements UserService {
     private buildUser(user: any) {
         return {
-            id: user.userId,
+            id: user.id,
             username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,

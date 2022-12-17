@@ -1,7 +1,6 @@
 package com.intheloop.social.domain;
 
 import jakarta.persistence.*;
-import lombok.ToString;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
@@ -9,7 +8,6 @@ import java.util.Set;
 
 @Table
 @Entity
-@ToString
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,16 +44,10 @@ public class User implements UserDetails {
     private String lastName;
 
     @Column
-    private String description;
+    private String description = "";
 
     @Column(nullable = false)
     private LocalDate birthDate;
-
-    @OneToMany
-    Set<Friendship> friendships;
-
-    @OneToMany
-    Set<FriendshipRequest> friendshipRequests;
 
     @OneToMany(mappedBy = "user")
     Set<Post> posts;
@@ -173,22 +165,6 @@ public class User implements UserDetails {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<Friendship> getFriendships() {
-        return friendships;
-    }
-
-    public void setFriendships(Set<Friendship> friendships) {
-        this.friendships = friendships;
-    }
-
-    public Set<FriendshipRequest> getFriendshipRequests() {
-        return friendshipRequests;
-    }
-
-    public void setFriendshipRequests(Set<FriendshipRequest> friendshipRequests) {
-        this.friendshipRequests = friendshipRequests;
     }
 
     public Set<Post> getPosts() {
