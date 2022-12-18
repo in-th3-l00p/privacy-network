@@ -15,6 +15,7 @@ import axios from "axios";
 import {ErrorType} from "./util/errorHandling";
 import LoadingPage from "./components/LoadingPage";
 import Search from "./views/Search";
+import Profile from "./views/Profile";
 
 const UnauthenticatedNav = () => {
     return (
@@ -153,6 +154,7 @@ function App() {
                             <Route path={"/login"} element={<Login/>}/>
                             <Route path={"/feed"} element={<PrivateRoute><Feed/></PrivateRoute>}/>
                             <Route path={"/search/:query"} element={<PrivateRoute><Search/></PrivateRoute>}/>
+                            <Route path={"/profile/:userId"} element={<PrivateRoute><Profile/></PrivateRoute>}/>
                         </Routes>
                     </BrowserRouter>
                 </Layout>

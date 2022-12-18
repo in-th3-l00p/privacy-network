@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Button, ButtonGroup, Col, Container, FloatingLabel, Form, Row} from "react-bootstrap";
+import {Button, Container, FloatingLabel, Form} from "react-bootstrap";
 import {ErrorType} from "../util/errorHandling";
 import axios from "axios";
 import {AuthenticationContext, getAuthenticationHeader} from "../util/authentication";
 import ErrorAlert from "../components/alerts";
 import LoadingPage from "../components/LoadingPage";
-import {Post, ServerPost} from "../util/serverTypes";
-import userService from "../service/userService";
+import {Post} from "../util/serverTypes";
+import PostDisplay from "../components/PostDisplay";
+import postService from "../service/postService";
 
 const PostForm: React.FC<{
     reload: boolean,
@@ -74,34 +75,6 @@ const PostForm: React.FC<{
     );
 }
 
-const PostDisplay: React.FC<{ post: Post }> = ({post}) => {
-    const formatDate = (date: Date) => {
-        return `${date.getFullYear()}-${date.getDay()}-${date.getMonth()} ${date.getHours()}:${date.getMinutes()}`;
-    }
-
-    return (
-        <div className={"border p-3 bg-white"}>
-            <Row>
-                <Col>
-                    <h4>{typeof post.user !== "undefined" ? post.user.username : "[deleted]"}</h4>
-                </Col>
-                <Col>
-                    <p className={"text-muted"} style={{textAlign: "right"}}>{formatDate(post.postDate)}</p>
-                </Col>
-            </Row>
-            <Row><Col><p>{post.text}</p></Col></Row>
-            <Row>
-                <Col>
-                    <ButtonGroup>
-                        <Button variant={"dark"}>👍</Button>
-                        <Button variant={"dark"}>👎</Button>
-                    </ButtonGroup>
-                </Col>
-            </Row>
-        </div>
-    )
-}
-
 const Feed = () => {
     const [posts, setPosts] = useState<Post[]>();
     const [reload, setReload] = useState<boolean>(false);
@@ -112,50 +85,10 @@ const Feed = () => {
 
     useEffect(() => {
         setLoading(true);
-        const fetchData = async () => {
-            if (!authentication.token)
-                return;
-            const resp = await axios.get("/api/post/feed", {
-                headers: getAuthenticationHeader(authentication.token),
-                params: {userId: authentication.userId}
-            });
-
-            if (!Array.isArray(resp.data)) {
-                setError({
-                    name: "Failed getting the feed",
-                    message: "Invalid data received from the server. Try reloading"
-                });
-            } else {
-                const serverPosts: ServerPost[] = resp.data;
-                let users: any = {};
-                serverPosts.forEach(post => users[post.userId] = null);
-                for (let strUserId of Object.keys(users)) {
-                    const userId = Number(strUserId);
-                    try {
-                        users[userId] = await userService.getPublicUser(userId);
-                    } catch (_) {
-                        users[userId] = null;
-                    }
-                }
-
-                setPosts(serverPosts.map(serverPost => {
-                    const post: Post = {
-                        id: serverPost.id,
-                        text: serverPost.text,
-                        likes: serverPost.likes,
-                        dislikes: serverPost.dislikes,
-                        visibility: serverPost.visibility,
-                        postDate: new Date(serverPost.postDate),
-                        user: users[serverPost.userId]
-                    };
-
-                    return post;
-                }));
-            }
-        }
-
-        fetchData()
-            .catch(err => setError(err))
+        postService
+            .getFeed(authentication)
+            .then(setPosts)
+            .catch(setError)
             .finally(() => setLoading(false));
     }, [reload])
 

@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction} from "react";
 import {Alert} from "react-bootstrap";
-import {ErrorType} from "../util/errorHandling";
+import {ErrorType, getErrorDescription, getErrorTitle} from "../util/errorHandling";
 import {AxiosError} from "axios";
 
 
@@ -16,8 +16,8 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({title, error, setError}) => {
     if (error instanceof AxiosError)
         return (
             <Alert variant={"danger"} onClose={() => setError(null)} dismissible>
-                <h4>{title ? title : (error.response?.data.name ? error.response.data.name : error.name)}</h4>
-                <p>{error.response?.data.description ? error.response.data.description : error.message}</p>
+                <h4>{title ? title : getErrorTitle(error)}</h4>
+                <p>{getErrorDescription(error)}</p>
             </Alert>
         )
     return (

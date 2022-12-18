@@ -32,7 +32,7 @@ export class UserServiceImpl implements UserService {
 
     async getCurrentUser(token: string): Promise<User> {
         const response = await axios.get(
-            "/api/public/user/current",
+            "/api/user",
             {headers: getAuthenticationHeader(token)}
         );
 
