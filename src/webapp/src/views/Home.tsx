@@ -9,13 +9,13 @@ import ErrorAlert from "../components/alerts";
 import {AuthenticationContext, IAuthenticationContext} from "../util/authentication";
 
 const Home = () => {
-    const [username, setUsername] = useState<string>("intheloop");
-    const [firstName, setFirstName] = useState<string>("Tisca");
-    const [lastName, setLastName] = useState<string>("Catalin");
-    const [birthDate, setBirthDate] = useState<string>("2006-03-03");
-    const [email, setEmail] = useState<string>("tiscacatalin@gmail.com");
-    const [password, setPassword] = useState<string>("test12345");
-    const [confirmPassword, setConfirmPassword] = useState<string>("test12345");
+    const [username, setUsername] = useState<string>("");
+    const [firstName, setFirstName] = useState<string>("");
+    const [lastName, setLastName] = useState<string>("");
+    const [birthDate, setBirthDate] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
 
     const authentication = useContext<IAuthenticationContext>(AuthenticationContext);
     const [loading, setLoading] = useState<boolean>(true);
@@ -124,6 +124,7 @@ const Home = () => {
                 </Alert>
                 <div className={"d-flex w-100 justify-content-center"}>
                     <Button
+                        variant={"dark"}
                         type={"submit"}
                         disabled={!checkValid()}
                     >

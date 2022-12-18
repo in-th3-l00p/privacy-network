@@ -31,7 +31,7 @@ const Profile = () => {
     }, []);
 
     useEffect(() => {
-        if (!params["userId"] || !postCount || posts.hasOwnProperty(currentPage))
+        if (!params["userId"] || typeof postCount === "undefined" || posts.hasOwnProperty(currentPage))
             return;
         postService.getPublicPosts(Number(params["userId"]), currentPage)
             .then(currentPosts => {
@@ -42,6 +42,8 @@ const Profile = () => {
             .catch(setError);
     }, [currentPage, postCount]);
 
+    useEffect(() => console.log(postCount, user, posts), [postCount]);
+
     if (error)
         return (
             <div className={"text-center mt-5"}>
@@ -49,7 +51,7 @@ const Profile = () => {
                 <h4>{getErrorDescription(error)}</h4>
             </div>
         );
-    if (!user || !postCount || Object.keys(posts).length === 0)
+    if (!user || typeof postCount === "undefined" || Object.keys(posts).length === 0)
         return <LoadingPage/>
     return (
         <Container className={"mt-3"}>
@@ -76,6 +78,7 @@ const Profile = () => {
             </div>
             <div className={"d-flex flex-column gap-3 py-3 mt-3"}>
                 <h2>User's activity:</h2>
+                {postCount === 0 && <p className={"text-center"}>This user didn't posted anything yet.</p>}
                 {
                     posts.hasOwnProperty(currentPage) ?
                         posts[currentPage].map((post, index) => (

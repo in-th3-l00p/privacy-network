@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useState} from "react";
 import {Alert, Button, Container, Form} from "react-bootstrap";
 // @ts-ignore
 import style from "../styles/form.module.scss";
@@ -6,17 +6,15 @@ import {useLocation} from "react-router-dom";
 import axios from "axios";
 import ErrorAlert from "../components/alerts";
 import {ErrorType} from "../util/errorHandling";
-import {AuthenticationContext, setAuthentication} from "../util/authentication";
+import {setAuthentication} from "../util/authentication";
 
 const Login = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const authentication = useContext(AuthenticationContext);
 
     const location = useLocation();
     const [showRegistered, setShowRegistered] = useState<boolean>(location.search === "?registered");
 
-    const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<ErrorType | null>();
 
     return (
@@ -30,7 +28,6 @@ const Login = () => {
                 className={style.form}
                 onSubmit={(event) => {
                     event.preventDefault();
-                    setLoading(true);
                     axios.post("/api/login", {username, password})
                         .then(resp => {
                             setAuthentication(true, resp.data)
@@ -66,6 +63,7 @@ const Login = () => {
                 </Alert>
                 <div className={"d-flex w-100 justify-content-center"}>
                     <Button
+                        variant={"dark"}
                         type={"submit"}
                         disabled={!(username && password)}
                     >

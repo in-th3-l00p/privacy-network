@@ -30,6 +30,7 @@ const UserDisplay: React.FC<{ user: User }> = ({user}) => {
                 <Button
                     variant={"dark"}
                     style={{aspectRatio: "1/1"}}
+                    onClick={() => window.location.href = `/profile/${user.id}`}
                 >
                     View profile
                 </Button>
