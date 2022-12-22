@@ -1,7 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {Container, Spinner} from "react-bootstrap";
 
-const LoadingPage = () => {
+interface LoadingPageProps {
+    whiteBackground?: boolean
+}
+
+const LoadingPage: React.FC<LoadingPageProps> = ({whiteBackground = false}) => {
     const [text, setText] = useState<string>("Loading");
     const points = 4;
     const elapsed = 500;
@@ -18,7 +22,10 @@ const LoadingPage = () => {
     }, [])
 
     return (
-        <Container className={"background-default d-flex flex-column p-5 text-center align-items-center"}>
+        <Container className={`
+            ${whiteBackground ? "bg-white" : "background-default"} 
+            d-flex flex-column p-5 text-center align-items-center
+        `}>
             <h3>{text}</h3>
             <Spinner animation={"border"} variant={"primary"}>
                 <span className={"visually-hidden"}>Loading spinner</span>

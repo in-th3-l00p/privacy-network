@@ -38,6 +38,10 @@ public class FriendshipService {
         friendshipRequestRepository.save(request);
     }
 
+    public void cancelRequest(FriendshipRequest request) {
+        friendshipRequestRepository.delete(request);
+    }
+
     public void acceptRequest(FriendshipRequest request) {
         Conversation conversation = new Conversation();
         conversation.setName(String.format(
@@ -78,6 +82,10 @@ public class FriendshipService {
 
     public Optional<Friendship> getFriendship(Long friendshipId) {
         return friendshipRepository.findById(friendshipId);
+    }
+
+    public Optional<Friendship> getFriendship(User user1, User user2) {
+        return friendshipRepository.findByUsers(user1.getId(), user2.getId());
     }
 
     public Optional<FriendshipRequest> getFriendshipRequest(Long friendshipRequestId) {

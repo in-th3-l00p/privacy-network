@@ -16,6 +16,7 @@ import {ErrorType} from "./util/errorHandling";
 import LoadingPage from "./components/LoadingPage";
 import Search from "./views/Search";
 import Profile from "./views/Profile";
+import Friends from "./views/Friends";
 
 const UnauthenticatedNav = () => {
     return (
@@ -64,6 +65,8 @@ const AuthenticatedNav = () => {
             <Nav className="ms-auto">
                 <NavDropdown title={authentication.username}>
                     <NavDropdown.Item href={`/profile/${authentication.userId}`}>View profile</NavDropdown.Item>
+                    <NavDropdown.Item href={`/friends`}>Friends</NavDropdown.Item>
+                    <NavDropdown.Divider/>
                     <NavDropdown.Item onClick={() => {
                         setAuthentication(false, null);
                         window.location.href = "/";
@@ -155,6 +158,10 @@ function App() {
                             <Route path={"/feed"} element={<PrivateRoute><Feed/></PrivateRoute>}/>
                             <Route path={"/search/:query"} element={<PrivateRoute><Search/></PrivateRoute>}/>
                             <Route path={"/profile/:userId"} element={<PrivateRoute><Profile/></PrivateRoute>}/>
+                            <Route path={"/friends"}>
+                                <Route index element={<PrivateRoute><Friends/></PrivateRoute>}/>
+                                <Route path={"/friends/requests"} element={<PrivateRoute><Friends/></PrivateRoute>}/>
+                            </Route>
                         </Routes>
                     </BrowserRouter>
                 </Layout>

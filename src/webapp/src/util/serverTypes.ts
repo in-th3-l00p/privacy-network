@@ -13,6 +13,8 @@ export interface PostDetails {
     likes: number;
     dislikes: number;
     visibility: string;
+    liked: boolean;
+    disliked: boolean;
 }
 
 export interface ServerPost extends PostDetails {
@@ -25,3 +27,19 @@ export interface Post extends PostDetails {
     user?: User;
 }
 
+export interface SentFriendRequest {
+    id: number;
+    receiver: User;
+}
+
+export interface ReceivedFriendRequest {
+    id: number;
+    requester: User;
+}
+
+export interface Friendship {
+    id: number;
+    user1: User;
+    user2: User;
+    creationDate: Date;
+}

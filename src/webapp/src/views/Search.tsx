@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {SearchContext} from "../util/search";
 import {User} from "../util/serverTypes";
 import {Button, Container} from "react-bootstrap";
@@ -7,8 +7,11 @@ import userService from "../service/userService";
 import {AuthenticationContext} from "../util/authentication";
 import {ErrorType} from "../util/errorHandling";
 import LoadingPage from "../components/LoadingPage";
+import friendshipService from "../service/friendshipService";
 
 const UserDisplay: React.FC<{ user: User }> = ({user}) => {
+    const authentication = useContext(AuthenticationContext);
+
     return (
         <div className={"border p-3 bg-white d-flex"}>
             <div className={"me-3"}>
@@ -23,7 +26,9 @@ const UserDisplay: React.FC<{ user: User }> = ({user}) => {
                 />
             </div>
             <div className={"me-auto"}>
-                <h4>{user.username}</h4>
+                <Link to={`/profile/${user.id}`} className={"text-black"}>
+                    <h4>{user.username}</h4>
+                </Link>
                 <p>{user.firstName} {user.lastName}</p>
             </div>
             <div className={"d-flex gap-3"}>
@@ -37,6 +42,10 @@ const UserDisplay: React.FC<{ user: User }> = ({user}) => {
                 <Button
                     variant={"dark"}
                     style={{aspectRatio: "1/1"}}
+                    onClick={() => {
+                        if (authentication.token)
+                            friendshipService.sendRequest(authentication.token, user.id);
+                    }}
                 >
                     Add friend
                 </Button>

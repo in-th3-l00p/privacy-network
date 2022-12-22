@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -28,8 +29,6 @@ public class PostService {
         Post post = new Post();
         post.setText(postDTO.getText());
         post.setPostDate(LocalDateTime.now());
-        post.setLikes(0L);
-        post.setDislikes(0L);
         post.setUser(user);
         if (Objects.equals(postDTO.getVisibility(), "public"))
             post.setVisibility(Post.Visibility.PUBLIC);
@@ -54,5 +53,29 @@ public class PostService {
 
     public Collection<Post> getUserFeed(User user) {
         return postRepository.findAllByUserId(user.getId());
+    }
+
+    public void likePost(User user, Post post) {
+        post.getDislikes().remove(user);
+        if (post.getLikes().contains(user))
+            post.getLikes().remove(user);
+        else
+            post.getLikes().add(user);
+
+        postRepository.save(post);
+    }
+
+    public void dislikePost(User user, Post post) {
+        post.getLikes().remove(user);
+        if (post.getDislikes().contains(user))
+            post.getDislikes().remove(user);
+        else
+            post.getDislikes().add(user);
+
+        postRepository.save(post);
+    }
+
+    public Optional<Post> getPostById(Long postId) {
+        return postRepository.findById(postId);
     }
 }

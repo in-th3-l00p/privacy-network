@@ -9,6 +9,10 @@ export interface PostService {
     getPublicPosts(userId: number, page: number): Promise<Post[]>;
 
     getFeed(authentication: Authentication): Promise<Post[]>;
+
+    likePost(token: string, postId: number): Promise<void>;
+
+    dislikePost(token: string, postId: number): Promise<void>;
 }
 
 class PostServiceImpl implements PostService {
@@ -32,7 +36,9 @@ class PostServiceImpl implements PostService {
                 dislikes: serverPost.dislikes,
                 visibility: serverPost.visibility,
                 postDate: new Date(serverPost.postDate),
-                user: users[serverPost.userId]
+                user: users[serverPost.userId],
+                liked: serverPost.liked,
+                disliked: serverPost.disliked
             };
 
             return post;
@@ -67,6 +73,28 @@ class PostServiceImpl implements PostService {
                 message: "Invalid data received from the server. Try reloading."
             };
         return await this.parsePosts(resp.data);
+    }
+
+    async likePost(token: string, postId: number): Promise<void> {
+        await axios.put(
+            "/api/post/like",
+            {},
+            {
+                headers: getAuthenticationHeader(token),
+                params: {postId}
+            }
+        );
+    }
+
+    async dislikePost(token: string, postId: number): Promise<void> {
+        await axios.put(
+            "/api/post/dislike",
+            {},
+            {
+                headers: getAuthenticationHeader(token),
+                params: {postId}
+            }
+        );
     }
 }
 

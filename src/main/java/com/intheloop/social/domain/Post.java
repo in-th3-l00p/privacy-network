@@ -3,6 +3,7 @@ package com.intheloop.social.domain;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table
@@ -17,11 +18,11 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime postDate;
 
-    @Column(nullable = false)
-    private Long likes = 0L;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<User> likes;
 
-    @Column(nullable = false)
-    private Long dislikes = 0L;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<User> dislikes;
 
     @ManyToOne
     private User user;
@@ -63,19 +64,19 @@ public class Post {
         this.postDate = postDate;
     }
 
-    public Long getLikes() {
+    public Set<User> getLikes() {
         return likes;
     }
 
-    public void setLikes(Long likes) {
+    public void setLikes(Set<User> likes) {
         this.likes = likes;
     }
 
-    public Long getDislikes() {
+    public Set<User> getDislikes() {
         return dislikes;
     }
 
-    public void setDislikes(Long dislikes) {
+    public void setDislikes(Set<User> dislikes) {
         this.dislikes = dislikes;
     }
 

@@ -1,6 +1,7 @@
 package com.intheloop.social.util.dto;
 
 import com.intheloop.social.domain.Post;
+import com.intheloop.social.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,14 +21,24 @@ public class PostDTO {
     private Long dislikes = 0L;
     private Long userId;
     private String visibility;
+    private boolean liked = false;
+    private boolean disliked = false;
 
     public PostDTO(Post post) {
         this.id = post.getId();
         this.text = post.getText();
         this.postDate = post.getPostDate();
-        this.likes = post.getLikes();
-        this.dislikes = post.getDislikes();
+        this.likes = (long) post.getLikes().size();
+        this.dislikes = (long) post.getDislikes().size();
         this.visibility = String.valueOf(post.getVisibility()).toLowerCase();
         this.userId = post.getUser().getId();
+    }
+
+    public PostDTO(Post post, User user) {
+        this(post);
+        if (post.getLikes().contains(user))
+            liked = true;
+        else if (post.getDislikes().contains(user))
+            disliked = true;
     }
 }

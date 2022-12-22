@@ -19,6 +19,7 @@ public class PublicUserDTO {
     private String lastName;
     private LocalDate birthDate;
     private LocalDate registrationDate;
+    private boolean requested = false;
 
     public PublicUserDTO(User user) {
         this.id = user.getId();

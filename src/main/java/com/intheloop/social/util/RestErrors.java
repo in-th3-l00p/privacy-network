@@ -36,18 +36,28 @@ public class RestErrors {
             "The given post data are bad."
     );
 
-    public static ServerError friendshipRequestAlreadyExists = new ServerError(
+    public static ServerError friendshipRequestAlreadyExistsError = new ServerError(
             "Friendship request already exists",
             "You've already sent a friend request to that person."
     );
 
-    public static ServerError friendshipRequestDoesntExist = new ServerError(
+    public static ServerError friendshipAlreadyExistsError = new ServerError(
+            "Friendship already exists",
+            "You're already friends with that person."
+    );
+
+    public static ServerError friendshipRequestDoesntExistError = new ServerError(
             "Friendship request doesn't exist",
             "The request doesn't exist."
     );
 
-    public static ServerError friendshipDoesntExist = new ServerError(
+    public static ServerError friendshipDoesntExistError = new ServerError(
             "Friendship doesn't exist",
             "The friendship doesn't exist."
+    );
+
+    public static ServerError postDoesntExistError = new ServerError(
+            "Post not found",
+            "The given post doesn't exist."
     );
 }

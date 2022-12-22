@@ -1,5 +1,6 @@
 package com.intheloop.social.web.rest;
 
+import com.intheloop.social.domain.Post;
 import com.intheloop.social.domain.User;
 import com.intheloop.social.service.PostService;
 import com.intheloop.social.service.UserService;
@@ -55,8 +56,38 @@ public class PostController {
         List<PostDTO> posts = postService
                 .getUserFeed(user.get())
                 .stream()
-                .map(PostDTO::new)
+                .map((post) -> new PostDTO(post, user.get()))
                 .toList();
         return ResponseEntity.ok(posts);
+    }
+
+    @PutMapping("/like")
+    public ResponseEntity<?> likePost(@RequestParam("postId") Long postId) {
+        Optional<String> username = SecurityUtils.getCurrentUsername();
+        if (username.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> user = userService.getUserByUsername(username.get());
+        if (user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+        Optional<Post> post = postService.getPostById(postId);
+        if (post.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.postDoesntExistError);
+        postService.likePost(user.get(), post.get());
+        return ResponseEntity.ok("Post liked");
+    }
+
+    @PutMapping("/dislike")
+    public ResponseEntity<?> dislikePost(@RequestParam("postId") Long postId) {
+        Optional<String> username = SecurityUtils.getCurrentUsername();
+        if (username.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> user = userService.getUserByUsername(username.get());
+        if (user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+        Optional<Post> post = postService.getPostById(postId);
+        if (post.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.postDoesntExistError);
+        postService.dislikePost(user.get(), post.get());
+        return ResponseEntity.ok("Post disliked");
     }
 }

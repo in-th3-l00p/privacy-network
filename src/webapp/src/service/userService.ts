@@ -10,24 +10,24 @@ export interface UserService {
     searchUsers(token: string, username: string): Promise<User[]>;
 }
 
-export class UserServiceImpl implements UserService {
-    private buildUser(user: any) {
-        return {
-            id: user.id,
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            birthDate: new Date(user.birthDate),
-            registrationDate: new Date(user.registrationDate)
-        }
+export function buildUser(user: any) {
+    return {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        birthDate: new Date(user.birthDate),
+        registrationDate: new Date(user.registrationDate)
     }
+}
 
+export class UserServiceImpl implements UserService {
     async getPublicUser(userId: number): Promise<User> {
         const response = await axios.get(
             "/api/public/user",
             {params: {userId}}
         );
-        return this.buildUser(response.data);
+        return buildUser(response.data);
     }
 
     async getCurrentUser(token: string): Promise<User> {
@@ -36,7 +36,7 @@ export class UserServiceImpl implements UserService {
             {headers: getAuthenticationHeader(token)}
         );
 
-        return this.buildUser(response.data);
+        return buildUser(response.data);
     }
 
     async searchUsers(token: string, username: string): Promise<User[]> {
@@ -48,7 +48,7 @@ export class UserServiceImpl implements UserService {
             }
         );
 
-        return response.data.map(this.buildUser);
+        return response.data.map(buildUser);
     }
 }
 

@@ -7,6 +7,8 @@ import com.intheloop.social.service.FriendshipService;
 import com.intheloop.social.service.UserService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
+import com.intheloop.social.util.dto.FriendshipDTO;
+import com.intheloop.social.util.dto.FriendshipRequestDTO;
 import com.intheloop.social.util.exceptions.FriendshipAleardyExists;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +38,13 @@ public class FriendshipController {
         Optional<User> user = userService.getUserByUsername(username.get());
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-        return ResponseEntity.ok(friendshipService.getFriendships(user.get()));
+        return ResponseEntity.ok(
+                friendshipService
+                        .getFriendships(user.get())
+                        .stream()
+                        .map(FriendshipDTO::new)
+                        .toList()
+        );
     }
 
     @GetMapping("/request/sent")
@@ -47,7 +55,13 @@ public class FriendshipController {
         Optional<User> user = userService.getUserByUsername(username.get());
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-        return ResponseEntity.ok(friendshipService.getRequestedRequests(user.get()));
+        return ResponseEntity.ok(
+                friendshipService
+                        .getRequestedRequests(user.get())
+                        .stream()
+                        .map(FriendshipRequestDTO::new)
+                        .toList()
+        );
     }
 
     @GetMapping("/request/received")
@@ -58,7 +72,13 @@ public class FriendshipController {
         Optional<User> user = userService.getUserByUsername(username.get());
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-        return ResponseEntity.ok(friendshipService.getReceivedRequests(user.get()));
+        return ResponseEntity.ok(
+                friendshipService
+                        .getReceivedRequests(user.get())
+                        .stream()
+                        .map(FriendshipRequestDTO::new)
+                        .toList()
+        );
     }
 
     @PostMapping("/request")
@@ -73,11 +93,15 @@ public class FriendshipController {
         Optional<User> receiver = userService.getUserById(userId);
         if (receiver.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+        if (friendshipService.getFriendship(user.get(), receiver.get()).isPresent())
+            return ResponseEntity.badRequest().body(RestErrors.friendshipAlreadyExistsError);
+
         try {
             friendshipService.request(user.get(), receiver.get());
         } catch (FriendshipAleardyExists ignored) {
-            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestAlreadyExists);
+            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestAlreadyExistsError);
         }
+
         return ResponseEntity.ok("Requested");
     }
 
@@ -95,9 +119,9 @@ public class FriendshipController {
                 friendshipRequest.isEmpty() ||
                         !Objects.equals(friendshipRequest.get().getReceiver(), user.get())
         )
-            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExist);
+            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExistError);
         friendshipService.acceptRequest(friendshipRequest.get());
-        return ResponseEntity.ok("Friend accepted.");
+        return ResponseEntity.ok("Friend accepted");
     }
 
     @PutMapping("/reject")
@@ -114,9 +138,28 @@ public class FriendshipController {
                 friendshipRequest.isEmpty() ||
                         !Objects.equals(friendshipRequest.get().getReceiver(), user.get())
         )
-            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExist);
+            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExistError);
         friendshipService.rejectRequest(friendshipRequest.get());
-        return ResponseEntity.ok("Friend rejeceted.");
+        return ResponseEntity.ok("Friend rejeceted");
+    }
+
+    @DeleteMapping("/request")
+    public ResponseEntity<?> cancelRequest(@RequestParam("requestId") Long requestId) {
+        Optional<String> username = SecurityUtils.getCurrentUsername();
+        if (username.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> user = userService.getUserByUsername(username.get());
+        if (user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+
+        Optional<FriendshipRequest> friendshipRequest = friendshipService.getFriendshipRequest(requestId);
+        if (
+                friendshipRequest.isEmpty() ||
+                        !Objects.equals(user.get(), friendshipRequest.get().getRequester())
+        )
+            return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExistError);
+        friendshipService.cancelRequest(friendshipRequest.get());
+        return ResponseEntity.ok("Friend request cancelled");
     }
 
     @DeleteMapping
@@ -134,8 +177,8 @@ public class FriendshipController {
                         !Objects.equals(friendship.get().getUser1(), user.get()) &&
                                 !Objects.equals(friendship.get().getUser2(), user.get())
         )
-            return ResponseEntity.badRequest().body(RestErrors.friendshipDoesntExist);
+            return ResponseEntity.badRequest().body(RestErrors.friendshipDoesntExistError);
         friendshipService.deleteFriendship(friendship.get());
-        return ResponseEntity.ok("Friend deleted.");
+        return ResponseEntity.ok("Friend deleted");
     }
 }
