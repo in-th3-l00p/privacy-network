@@ -2,15 +2,18 @@ package com.intheloop.social.web.rest;
 
 import com.intheloop.social.domain.Post;
 import com.intheloop.social.domain.User;
+import com.intheloop.social.service.FriendshipService;
 import com.intheloop.social.service.PostService;
 import com.intheloop.social.service.UserService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
 import com.intheloop.social.util.dto.PostDTO;
+import com.intheloop.social.util.dto.PublicUserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -18,10 +21,72 @@ import java.util.Optional;
 public class PostController {
     private final PostService postService;
     private final UserService userService;
+    private final FriendshipService friendshipService;
 
-    public PostController(PostService postService, UserService userService) {
+    public PostController(
+            PostService postService,
+            UserService userService,
+            FriendshipService friendshipService
+    ) {
         this.postService = postService;
         this.userService = userService;
+        this.friendshipService = friendshipService;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUserPosts(
+            @RequestParam("userId") Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int currentPage,
+            @RequestParam(value = "size", defaultValue = "5") int pageSize
+    ) {
+        Optional<String> currentUsername = SecurityUtils.getCurrentUsername();
+        if (currentUsername.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> currentUser = userService.getUserByUsername(currentUsername.get());
+        Optional<User> user = userService.getUserById(userId);
+        if (currentUser.isEmpty() || user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+
+        PublicUserDTO.Relationship relationship = friendshipService.getRelationship(
+                user.get(), currentUser.get()
+        );
+        if (
+                relationship == PublicUserDTO.Relationship.FRIENDS ||
+                        Objects.equals(user.get().getId(), currentUser.get().getId())
+        )
+            return ResponseEntity.ok(
+                    postService.getUserPosts(user.get(), currentPage, pageSize)
+                            .stream()
+                            .map(PostDTO::new)
+                            .toList()
+            );
+        return ResponseEntity.ok(
+                postService.getPublicUserPosts(user.get(), currentPage, pageSize)
+                        .stream()
+                        .map(PostDTO::new)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<?> countUserPosts(@RequestParam("userId") Long userId) {
+        Optional<String> currentUsername = SecurityUtils.getCurrentUsername();
+        if (currentUsername.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> currentUser = userService.getUserByUsername(currentUsername.get());
+        Optional<User> user = userService.getUserById(userId);
+        if (currentUser.isEmpty() || user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+
+        PublicUserDTO.Relationship relationship = friendshipService.getRelationship(
+                user.get(), currentUser.get()
+        );
+        if (
+                relationship == PublicUserDTO.Relationship.FRIENDS ||
+                        Objects.equals(user.get().getId(), currentUser.get().getId())
+        )
+            return ResponseEntity.ok(postService.countUserPosts(user.get()));
+        return ResponseEntity.ok(postService.countPublicUserPosts(user.get()));
     }
 
     @PostMapping

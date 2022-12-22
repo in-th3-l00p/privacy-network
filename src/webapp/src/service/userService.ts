@@ -5,6 +5,8 @@ import {getAuthenticationHeader} from "../util/authentication";
 export interface UserService {
     getPublicUser(userId: number): Promise<User>;
 
+    getUser(token: string, userId: number): Promise<User>;
+
     getCurrentUser(token: string): Promise<User>;
 
     searchUsers(token: string, username: string): Promise<User[]>;
@@ -17,7 +19,8 @@ export function buildUser(user: any) {
         firstName: user.firstName,
         lastName: user.lastName,
         birthDate: new Date(user.birthDate),
-        registrationDate: new Date(user.registrationDate)
+        registrationDate: new Date(user.registrationDate),
+        relationship: user.relationship
     }
 }
 
@@ -26,6 +29,17 @@ export class UserServiceImpl implements UserService {
         const response = await axios.get(
             "/api/public/user",
             {params: {userId}}
+        );
+        return buildUser(response.data);
+    }
+
+    async getUser(token: string, userId: number) {
+        const response = await axios.get(
+            "/api/public/user",
+            {
+                headers: getAuthenticationHeader(token),
+                params: {userId}
+            }
         );
         return buildUser(response.data);
     }

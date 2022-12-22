@@ -4,13 +4,17 @@ import {Friendship, ReceivedFriendRequest, SentFriendRequest, User} from "../uti
 import {buildUser} from "./userService";
 
 export interface FriendshipService {
+    getFriendship(token: string, friendId: number): Promise<number>;
+
     getFriendships(token: string): Promise<Friendship[]>;
+
+    getFriendshipRequestId(token: string, requesterId: number, receiverId: number): Promise<number>;
 
     getSentFriendshipRequests(token: string): Promise<SentFriendRequest[]>;
 
-    removeFriendship(token: string, friendshipId: number): Promise<void>;
-
     getReceivedFriendshipRequests(token: string): Promise<ReceivedFriendRequest[]>;
+
+    removeFriendship(token: string, friendshipId: number): Promise<void>;
 
     sendRequest(token: string, userId: number): Promise<void>;
 
@@ -22,7 +26,15 @@ export interface FriendshipService {
 }
 
 class FriendshipServiceImpl implements FriendshipService {
-    async getFriendships(token: string): Promise<Friendship[]> {
+    async getFriendship(token: string, friendId: number) {
+        const resp = await axios.get("/api/friend/id", {
+            headers: getAuthenticationHeader(token),
+            params: {friendId}
+        });
+        return Number(resp.data);
+    }
+
+    async getFriendships(token: string) {
         const resp = await axios.get("/api/friend", {
             headers: getAuthenticationHeader(token)
         });
@@ -36,14 +48,23 @@ class FriendshipServiceImpl implements FriendshipService {
         });
     }
 
-    async removeFriendship(token: string, friendshipId: number): Promise<void> {
+    async removeFriendship(token: string, friendshipId: number) {
         await axios.delete("/api/friend", {
             headers: getAuthenticationHeader(token),
             params: {friendshipId}
         });
     }
 
-    async getReceivedFriendshipRequests(token: string): Promise<ReceivedFriendRequest[]> {
+    async getFriendshipRequestId(token: string, requesterId: number, receiverId: number) {
+        const resp = await axios.get("/api/friend/request", {
+            headers: getAuthenticationHeader(token),
+            params: {requesterId, receiverId}
+        });
+
+        return Number(resp.data);
+    }
+
+    async getReceivedFriendshipRequests(token: string) {
         const resp = await axios.get("/api/friend/request/received", {
             headers: getAuthenticationHeader(token)
         });
@@ -55,7 +76,7 @@ class FriendshipServiceImpl implements FriendshipService {
         });
     }
 
-    async getSentFriendshipRequests(token: string): Promise<SentFriendRequest[]> {
+    async getSentFriendshipRequests(token: string) {
         const resp = await axios.get("/api/friend/request/sent", {
             headers: getAuthenticationHeader(token)
         });
@@ -67,28 +88,28 @@ class FriendshipServiceImpl implements FriendshipService {
         });
     }
 
-    async sendRequest(token: string, userId: number): Promise<void> {
+    async sendRequest(token: string, userId: number) {
         await axios.post("/api/friend/request", {}, {
             headers: getAuthenticationHeader(token),
             params: {userId}
         });
     }
 
-    async cancelRequest(token: string, requestId: number): Promise<void> {
+    async cancelRequest(token: string, requestId: number) {
         await axios.delete("/api/friend/request", {
             headers: getAuthenticationHeader(token),
             params: {requestId}
         })
     }
 
-    async acceptRequest(token: string, requestId: number): Promise<void> {
+    async acceptRequest(token: string, requestId: number) {
         await axios.put("/api/friend/accept", {}, {
             headers: getAuthenticationHeader(token),
             params: {requestId}
         });
     }
 
-    async rejectRequest(token: string, requestId: number): Promise<void> {
+    async rejectRequest(token: string, requestId: number) {
         await axios.put("/api/friend/reject", {}, {
             headers: getAuthenticationHeader(token),
             params: {requestId}

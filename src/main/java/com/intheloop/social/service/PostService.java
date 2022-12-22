@@ -40,6 +40,15 @@ public class PostService {
         postRepository.save(post);
     }
 
+    public List<Post> getUserPosts(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return postRepository.findAllByUser(user, pageable).toList();
+    }
+
+    public int countUserPosts(User user) {
+        return postRepository.countAllByUser(user);
+    }
+
     public List<Post> getPublicUserPosts(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         return postRepository

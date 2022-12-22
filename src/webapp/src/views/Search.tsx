@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useLocation, useParams} from "react-router-dom";
 import {SearchContext} from "../util/search";
-import {User} from "../util/serverTypes";
+import {User, UserRelationship} from "../util/serverTypes";
 import {Button, Container} from "react-bootstrap";
 import userService from "../service/userService";
 import {AuthenticationContext} from "../util/authentication";
@@ -9,9 +9,101 @@ import {ErrorType} from "../util/errorHandling";
 import LoadingPage from "../components/LoadingPage";
 import friendshipService from "../service/friendshipService";
 
-const UserDisplay: React.FC<{ user: User }> = ({user}) => {
-    const authentication = useContext(AuthenticationContext);
+interface AddFriendButtonProps {
+    userId: number,
+    relationship: UserRelationship
+}
 
+const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship}) => {
+    const authentication = useContext(AuthenticationContext);
+    const location = useLocation();
+
+    if (authentication.token === null)
+        return <></>
+    if (relationship === "NOTHING")
+        return (
+            <Button
+                variant={"dark"}
+                style={{aspectRatio: "1/1", width: "100%"}}
+                onClick={() => {
+                    if (authentication.token)
+                        friendshipService
+                            .sendRequest(authentication.token, userId)
+                            .then(() => window.location.href = location.pathname);
+                }}
+            >
+                Add friend
+            </Button>
+        );
+    else if (relationship === "RECEIVED") {
+        const [requestId, setRequestId] = useState<number>();
+
+        useEffect(() => {
+            if (authentication.token && authentication.userId)
+                friendshipService
+                    .getFriendshipRequestId(authentication.token, userId, authentication.userId)
+                    .then(setRequestId);
+        }, []);
+
+        return (
+            <>
+                <Button
+                    variant={"dark"}
+                    style={{aspectRatio: "1/1", width: "100%"}}
+                    disabled={typeof requestId === "undefined"}
+                    onClick={() => {
+                        if (authentication.token && requestId)
+                            friendshipService
+                                .acceptRequest(authentication.token, requestId)
+                                .then(() => window.location.href = location.pathname);
+                    }}
+                >
+                    Accept
+                </Button>
+                <Button
+                    variant={"danger"}
+                    style={{aspectRatio: "1/1", width: "100%"}}
+                    onClick={() => {
+                        if (authentication.token && requestId)
+                            friendshipService
+                                .rejectRequest(authentication.token, requestId)
+                                .then(() => window.location.href = location.pathname);
+                    }}
+                >
+                    Reject
+                </Button>
+            </>
+        )
+    } else if (relationship === "REQUESTED") {
+        const [requestId, setRequestId] = useState<number>();
+
+        useEffect(() => {
+            if (authentication.token && authentication.userId)
+                friendshipService
+                    .getFriendshipRequestId(authentication.token, authentication.userId, userId)
+                    .then(setRequestId);
+        }, []);
+
+        return (
+            <Button
+                variant={"secondary"}
+                style={{aspectRatio: "1/1", width: "100%"}}
+                disabled={typeof requestId === "undefined"}
+                onClick={() => {
+                    if (authentication.token && requestId)
+                        friendshipService
+                            .cancelRequest(authentication.token, requestId)
+                            .then(() => window.location.href = location.pathname);
+                }}
+            >
+                Cancel
+            </Button>
+        )
+    }
+    return <></>
+}
+
+const UserDisplay: React.FC<{ user: User }> = ({user}) => {
     return (
         <div className={"border p-3 bg-white d-flex"}>
             <div className={"me-3"}>
@@ -34,21 +126,15 @@ const UserDisplay: React.FC<{ user: User }> = ({user}) => {
             <div className={"d-flex gap-3"}>
                 <Button
                     variant={"dark"}
-                    style={{aspectRatio: "1/1"}}
+                    style={{aspectRatio: "1/1", width: "100%"}}
                     onClick={() => window.location.href = `/profile/${user.id}`}
                 >
                     View profile
                 </Button>
-                <Button
-                    variant={"dark"}
-                    style={{aspectRatio: "1/1"}}
-                    onClick={() => {
-                        if (authentication.token)
-                            friendshipService.sendRequest(authentication.token, user.id);
-                    }}
-                >
-                    Add friend
-                </Button>
+                <AddFriendButton
+                    userId={user.id}
+                    relationship={user.relationship}
+                />
             </div>
         </div>
     )

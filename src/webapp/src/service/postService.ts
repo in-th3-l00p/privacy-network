@@ -4,9 +4,9 @@ import axios from "axios";
 import userService from "./userService";
 
 export interface PostService {
-    countPublicPosts(userId: number): Promise<number>;
+    countPosts(token: string, userId: number): Promise<number>;
 
-    getPublicPosts(userId: number, page: number): Promise<Post[]>;
+    getPosts(token: string, userId: number, page: number): Promise<Post[]>;
 
     getFeed(authentication: Authentication): Promise<Post[]>;
 
@@ -60,13 +60,19 @@ class PostServiceImpl implements PostService {
         return await this.parsePosts(resp.data);
     }
 
-    async countPublicPosts(userId: number): Promise<number> {
-        const resp = await axios.get("/api/public/post/count", {params: {userId}});
+    async countPosts(token: string, userId: number): Promise<number> {
+        const resp = await axios.get("/api/post/count", {
+            headers: getAuthenticationHeader(token),
+            params: {userId}
+        });
         return Number(resp.data);
     }
 
-    async getPublicPosts(userId: number, page: number): Promise<Post[]> {
-        const resp = await axios.get("/api/public/post", {params: {userId, page}});
+    async getPosts(token: string, userId: number, page: number): Promise<Post[]> {
+        const resp = await axios.get("/api/post", {
+            headers: getAuthenticationHeader(token),
+            params: {userId, page}
+        });
         if (!Array.isArray(resp.data))
             throw {
                 name: "Failed getting the user's posts",

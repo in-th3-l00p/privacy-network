@@ -1,10 +1,13 @@
+export type UserRelationship = "NOTHING" | "REQUESTED" | "RECEIVED" | "FRIENDS";
+
 export interface User {
-    id: number,
-    username: string,
-    firstName: string,
-    lastName: string,
-    birthDate: Date,
-    registrationDate: Date
+    id: number;
+    username: string;
+    firstName: string;
+    lastName: string;
+    birthDate: Date;
+    registrationDate: Date;
+    relationship: UserRelationship;
 }
 
 export interface PostDetails {

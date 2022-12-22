@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from "react";
-import {useParams} from "react-router-dom";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {useLocation, useParams} from "react-router-dom";
 import {Post, User} from "../util/serverTypes";
 import LoadingPage from "../components/LoadingPage";
 import userService from "../service/userService";
@@ -7,8 +7,140 @@ import {ErrorType, getErrorDescription, getErrorTitle} from "../util/errorHandli
 import {Button, Container} from "react-bootstrap";
 import postService from "../service/postService";
 import PostDisplay from "../components/PostDisplay";
+import {AuthenticationContext} from "../util/authentication";
+import friendshipService from "../service/friendshipService";
+import RemoveFriendModal from "../components/RemoveFriendModal";
+
+const ActionButtons: React.FC<{ user: User }> = ({user}) => {
+    const location = useLocation();
+    const authentication = useContext(AuthenticationContext);
+    const ButtonsContainer: React.FC<{ children: JSX.Element | JSX.Element[] }> = ({children}) => {
+        return (
+            <div className={"ms-auto d-flex gap-3 align-items-end"}>
+                {children}
+            </div>
+        );
+    }
+
+    if (authentication.userId === user.id)
+        return (
+            <ButtonsContainer>
+                <Button variant={"dark"} onClick={() => window.location.href = "/settings"}>
+                    Settings
+                </Button>
+            </ButtonsContainer>
+        )
+    else if (user.relationship === "RECEIVED") {
+        const [requestId, setRequestId] = useState<number>();
+
+        useEffect(() => {
+            if (authentication.token && authentication.userId)
+                friendshipService
+                    .getFriendshipRequestId(authentication.token, user.id, authentication.userId)
+                    .then(setRequestId);
+        }, []);
+
+        return (
+            <ButtonsContainer>
+                <Button
+                    variant={"dark"}
+                    disabled={typeof requestId === undefined}
+                    onClick={() => {
+                        if (authentication.token && requestId)
+                            friendshipService.acceptRequest(authentication.token, requestId)
+                                .then(() => window.location.href = location.pathname);
+                    }}
+                >
+                    Accept
+                </Button>
+                <Button
+                    variant={"danger"}
+                    disabled={typeof requestId === undefined}
+                    onClick={() => {
+                        if (authentication.token && typeof requestId !== "undefined")
+                            friendshipService.rejectRequest(authentication.token, requestId)
+                                .then(() => window.location.href = location.pathname);
+                    }}
+                >
+                    Reject
+                </Button>
+            </ButtonsContainer>
+        );
+    } else if (user.relationship === "REQUESTED") {
+        const [requestId, setRequestId] = useState<number>();
+
+        useEffect(() => {
+            if (authentication.token && authentication.userId)
+                friendshipService
+                    .getFriendshipRequestId(authentication.token, authentication.userId, user.id)
+                    .then(setRequestId);
+        }, []);
+
+        return (
+            <ButtonsContainer>
+                <Button
+                    variant={"secondary"}
+                    disabled={typeof requestId === "undefined"}
+                    onClick={() => {
+                        if (authentication.token && typeof requestId !== "undefined")
+                            friendshipService.cancelRequest(authentication.token, requestId)
+                                .then(() => window.location.href = location.pathname);
+                    }}
+                >
+                    Cancel
+                </Button>
+            </ButtonsContainer>
+        )
+    } else if (user.relationship === "FRIENDS") {
+        const [friendshipId, setFriendshipId] = useState<number>(-1);
+        const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
+
+        useEffect(() => {
+            if (authentication.token)
+                friendshipService
+                    .getFriendship(authentication.token, user.id)
+                    .then(setFriendshipId);
+        }, [])
+
+        return (
+            <>
+                <RemoveFriendModal
+                    friend={user}
+                    friendshipId={friendshipId}
+                    show={showRemoveModal}
+                    setShow={setShowRemoveModal}
+                    redirectUrl={location.pathname}
+                />
+                <ButtonsContainer>
+                    <Button
+                        variant={"danger"}
+                        onClick={() => setShowRemoveModal(true)}
+                    >
+                        Unfriend
+                    </Button>
+                </ButtonsContainer>
+            </>
+        );
+    }
+    return (
+        <ButtonsContainer>
+            <Button
+                variant={"dark"}
+                onClick={() => {
+                    if (authentication.token)
+                        friendshipService
+                            .sendRequest(authentication.token, user.id)
+                            .then(() => window.location.href = location.pathname);
+                }}
+            >
+                Add friend
+            </Button>
+        </ButtonsContainer>
+    )
+}
 
 const Profile = () => {
+    const authentication = useContext(AuthenticationContext);
     const params = useParams();
 
     const [user, setUser] = useState<User>();
@@ -19,21 +151,35 @@ const Profile = () => {
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
-        if (!params["userId"])
+        if (authentication.token === null || !params["userId"])
             return;
-        userService.getPublicUser(Number(params["userId"]))
+        userService
+            .getUser(authentication.token, Number(params["userId"]))
             .then(userData => {
                 setUser(userData);
-                return postService.countPublicPosts(Number(params["userId"]))
+                if (authentication.token)
+                    return postService.countPosts(
+                        authentication.token,
+                        Number(params["userId"])
+                    );
             })
             .then(setPostCount)
             .catch(setError)
     }, []);
 
     useEffect(() => {
-        if (!params["userId"] || typeof postCount === "undefined" || posts.hasOwnProperty(currentPage))
+        if (
+            !authentication.token ||
+            !params["userId"] ||
+            typeof postCount === "undefined" ||
+            posts.hasOwnProperty(currentPage)
+        )
             return;
-        postService.getPublicPosts(Number(params["userId"]), currentPage)
+        postService.getPosts(
+            authentication.token,
+            Number(params["userId"]),
+            currentPage
+        )
             .then(currentPosts => {
                 const postsCopy = {...posts};
                 postsCopy[currentPage] = currentPosts.reverse();
@@ -41,8 +187,6 @@ const Profile = () => {
             })
             .catch(setError);
     }, [currentPage, postCount]);
-
-    useEffect(() => console.log(postCount, user, posts), [postCount]);
 
     if (error)
         return (
@@ -67,6 +211,7 @@ const Profile = () => {
                     }}
                 />
                 <h3 className={"mt-auto fw-bold"}>{user.username}</h3>
+                <ActionButtons user={user}/>
             </div>
             <div className={"p-3 border bg-white"}>
                 <h5>Informations:</h5>

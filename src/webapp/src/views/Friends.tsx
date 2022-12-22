@@ -1,53 +1,18 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Button, Col, Container, Modal, Row} from "react-bootstrap";
+import {Button, Col, Container, Row} from "react-bootstrap";
 import {Link, useLocation} from "react-router-dom";
-import {Friendship, ReceivedFriendRequest, SentFriendRequest, User} from "../util/serverTypes";
+import {Friendship, ReceivedFriendRequest, SentFriendRequest} from "../util/serverTypes";
 import {AuthenticationContext} from "../util/authentication";
 import LoadingPage from "../components/LoadingPage";
 import friendshipService, {getFriend} from "../service/friendshipService";
 import {ErrorType, getErrorDescription, getErrorTitle, ServerError} from "../util/errorHandling";
 import ErrorAlert from "../components/alerts";
 import {AxiosError} from "axios";
+import RemoveFriendModal from "../components/RemoveFriendModal";
 
-const FriendshipContext = React.createContext<Friendship>({} as Friendship);
+export const FriendshipContext = React.createContext<Friendship>({} as Friendship);
 const SentFriendshipRequestContext = React.createContext<SentFriendRequest>({} as SentFriendRequest);
 const ReceivedFriendshipRequestContext = React.createContext<ReceivedFriendRequest>({} as ReceivedFriendRequest);
-
-interface RemoveFriendModalProps {
-    friend: User;
-    show: boolean;
-    setShow: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const RemoveFriendModal: React.FC<RemoveFriendModalProps> = ({friend, show, setShow}) => {
-    const authentication = useContext(AuthenticationContext);
-    const friendship = useContext(FriendshipContext);
-
-    return (
-        <Modal show={show} onHide={() => setShow(false)} backdrop={"static"}>
-            <Modal.Header closeButton>
-                <Modal.Title>Are you sure?</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                Are you sure you want to remove <b>{friend.username}</b> from your friend list.
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant={"dark"} onClick={() => setShow(false)}>Close</Button>
-                <Button
-                    variant={"danger"}
-                    onClick={() => {
-                        if (authentication.token)
-                            friendshipService.removeFriendship(authentication.token, friendship.id)
-                                .then(() => window.location.href = "/friends");
-                    }}
-                >
-                    Confirm
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    );
-}
-
 
 const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) => {
     const authentication = useContext(AuthenticationContext);
@@ -167,8 +132,10 @@ const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) =
             </div>
             <RemoveFriendModal
                 friend={friend}
+                friendshipId={friendship.id}
                 show={showRemove}
                 setShow={setShowRemove}
+                redirectUrl={"/friends"}
             />
         </>
     );

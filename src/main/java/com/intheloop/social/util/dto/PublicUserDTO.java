@@ -19,7 +19,14 @@ public class PublicUserDTO {
     private String lastName;
     private LocalDate birthDate;
     private LocalDate registrationDate;
-    private boolean requested = false;
+    private Relationship relationship = Relationship.NOTHING;
+
+    public enum Relationship {
+        NOTHING,
+        REQUESTED,
+        RECEIVED,
+        FRIENDS
+    }
 
     public PublicUserDTO(User user) {
         this.id = user.getId();
@@ -28,5 +35,15 @@ public class PublicUserDTO {
         this.lastName = user.getLastName();
         this.birthDate = user.getBirthDate();
         this.registrationDate = user.getRegistrationDate();
+    }
+
+    public PublicUserDTO(User user, Relationship relationship) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.birthDate = user.getBirthDate();
+        this.registrationDate = user.getRegistrationDate();
+        this.relationship = relationship;
     }
 }

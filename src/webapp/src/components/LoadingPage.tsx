@@ -1,11 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Container, Spinner} from "react-bootstrap";
 
-interface LoadingPageProps {
-    whiteBackground?: boolean
-}
-
-const LoadingPage: React.FC<LoadingPageProps> = ({whiteBackground = false}) => {
+const LoadingPage: React.FC<{ whiteBackground?: boolean }> = ({whiteBackground = false}) => {
     const [text, setText] = useState<string>("Loading");
     const points = 4;
     const elapsed = 500;

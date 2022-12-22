@@ -10,6 +10,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.Collection;
 
 public interface PostRepository extends CrudRepository<Post, Long>, PagingAndSortingRepository<Post, Long> {
+    Page<Post> findAllByUser(User user, Pageable pageable);
+
+    int countAllByUser(User user);
+
     Collection<Post> findAllByUserId(Long userId);
 
     Page<Post> findAllByVisibilityAndUser(Post.Visibility visibility, User user, Pageable pageable);

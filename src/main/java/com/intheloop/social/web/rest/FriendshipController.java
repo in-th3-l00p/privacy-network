@@ -10,6 +10,7 @@ import com.intheloop.social.util.SecurityUtils;
 import com.intheloop.social.util.dto.FriendshipDTO;
 import com.intheloop.social.util.dto.FriendshipRequestDTO;
 import com.intheloop.social.util.exceptions.FriendshipAleardyExists;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +48,27 @@ public class FriendshipController {
         );
     }
 
+    @GetMapping("/id")
+    public ResponseEntity<?> getFriendship(
+            @RequestParam("friendId") Long friendId
+    ) {
+        Optional<String> username = SecurityUtils.getCurrentUsername();
+        if (username.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> friend = userService.getUserById(friendId);
+        if (user.isEmpty() || friend.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+        Optional<Friendship> friendship = friendshipService.getFriendship(
+                user.get(), friend.get()
+        );
+        if (friendship.isEmpty())
+            return ResponseEntity
+                    .badRequest()
+                    .body(RestErrors.friendshipDoesntExistError);
+        return ResponseEntity.ok(friendship.get().getId());
+    }
+
     @GetMapping("/request/sent")
     public ResponseEntity<?> getSentRequests() {
         Optional<String> username = SecurityUtils.getCurrentUsername();
@@ -79,6 +101,45 @@ public class FriendshipController {
                         .map(FriendshipRequestDTO::new)
                         .toList()
         );
+    }
+
+    @GetMapping("/request")
+    public ResponseEntity<?> getRequestId(
+            @RequestParam("requesterId") Long requesterId,
+            @RequestParam("receiverId") Long receiverId
+    ) {
+        Optional<String> username = SecurityUtils.getCurrentUsername();
+        if (username.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        Optional<User> user = userService.getUserByUsername(username.get());
+        if (user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+        if (
+                !Objects.equals(user.get().getId(), requesterId) &&
+                        !Objects.equals(user.get().getId(), receiverId)
+        )
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Optional<User> otherUser;
+        Optional<FriendshipRequest> optionalFriendshipRequest;
+        if (Objects.equals(user.get().getId(), requesterId)) {
+            otherUser = userService.getUserById(receiverId);
+            if (otherUser.isEmpty())
+                return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            optionalFriendshipRequest = friendshipService
+                    .getFriendshipRequest(user.get(), otherUser.get());
+        } else {
+            otherUser = userService.getUserById(requesterId);
+            if (otherUser.isEmpty())
+                return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            optionalFriendshipRequest = friendshipService
+                    .getFriendshipRequest(otherUser.get(), user.get());
+        }
+
+        if (optionalFriendshipRequest.isEmpty())
+            return ResponseEntity
+                    .badRequest()
+                    .body(RestErrors.friendshipRequestDoesntExistError);
+        return ResponseEntity.ok(optionalFriendshipRequest.get().getId());
     }
 
     @PostMapping("/request")

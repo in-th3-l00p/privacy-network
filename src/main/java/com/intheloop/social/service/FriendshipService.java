@@ -7,6 +7,7 @@ import com.intheloop.social.domain.User;
 import com.intheloop.social.repository.ConversationRepository;
 import com.intheloop.social.repository.FriendshipRepository;
 import com.intheloop.social.repository.FriendshipRequestRepository;
+import com.intheloop.social.util.dto.PublicUserDTO;
 import com.intheloop.social.util.exceptions.FriendshipAleardyExists;
 import org.springframework.stereotype.Service;
 
@@ -90,5 +91,29 @@ public class FriendshipService {
 
     public Optional<FriendshipRequest> getFriendshipRequest(Long friendshipRequestId) {
         return friendshipRequestRepository.findById(friendshipRequestId);
+    }
+
+    public Optional<FriendshipRequest> getFriendshipRequest(User requester, User receiver) {
+        return friendshipRequestRepository.findByRequesterAndReceiver(requester, receiver);
+    }
+
+    public PublicUserDTO.Relationship getRelationship(User user, User currentUser) {
+        Optional<FriendshipRequest> optionalFriendshipRequest = getFriendshipRequest(
+                currentUser, user
+        );
+        if (optionalFriendshipRequest.isPresent())
+            return PublicUserDTO.Relationship.REQUESTED;
+        optionalFriendshipRequest = getFriendshipRequest(
+                user, currentUser
+        );
+        if (optionalFriendshipRequest.isPresent())
+            return PublicUserDTO.Relationship.RECEIVED;
+
+        Optional<Friendship> optionalFriendship = getFriendship(
+                user, currentUser
+        );
+        if (optionalFriendship.isPresent())
+            return PublicUserDTO.Relationship.FRIENDS;
+        return PublicUserDTO.Relationship.NOTHING;
     }
 }
