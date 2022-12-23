@@ -5,6 +5,7 @@ import com.intheloop.social.domain.FriendshipRequest;
 import com.intheloop.social.domain.User;
 import com.intheloop.social.service.FriendshipService;
 import com.intheloop.social.service.UserService;
+import com.intheloop.social.service.feed.FeedService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
 import com.intheloop.social.util.dto.FriendshipDTO;
@@ -22,13 +23,16 @@ import java.util.Optional;
 public class FriendshipController {
     private final FriendshipService friendshipService;
     private final UserService userService;
+    private final FeedService feedService;
 
     public FriendshipController(
             FriendshipService friendshipService,
-            UserService userService
+            UserService userService,
+            FeedService feedService
     ) {
         this.friendshipService = friendshipService;
         this.userService = userService;
+        this.feedService = feedService;
     }
 
     @GetMapping
@@ -162,7 +166,8 @@ public class FriendshipController {
                         !Objects.equals(friendshipRequest.get().getReceiver(), user.get())
         )
             return ResponseEntity.badRequest().body(RestErrors.friendshipRequestDoesntExistError);
-        friendshipService.acceptRequest(friendshipRequest.get());
+        Friendship friendship = friendshipService.acceptRequest(friendshipRequest.get());
+        feedService.updateFeedOnNewFriendship(friendship);
         return ResponseEntity.ok("Friend accepted");
     }
 
@@ -212,6 +217,7 @@ public class FriendshipController {
         )
             return ResponseEntity.badRequest().body(RestErrors.friendshipDoesntExistError);
         friendshipService.deleteFriendship(friendship.get());
+        feedService.updateFeedOnDeletedFriendship(friendship.get());
         return ResponseEntity.ok("Friend deleted");
     }
 }

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {Button, Container, FloatingLabel, Form} from "react-bootstrap";
 import {ErrorType} from "../util/errorHandling";
 import axios from "axios";
@@ -76,20 +76,48 @@ const PostForm: React.FC<{
 }
 
 const Feed = () => {
-    const [posts, setPosts] = useState<Post[]>();
-    const [reload, setReload] = useState<boolean>(false);
+    const pageSize = 5;
+    const currentPage = useRef(0);
+    const [scrollPosition, setScrollPosition] = useState<number>(window.scrollY);
+    const [feedSize, setFeedSize] = useState<number>(0);
+    const [posts, setPosts] = useState<Post[]>([]);
 
+    const [reload, setReload] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
         setLoading(true);
         postService
-            .getFeed()
+            .countFeed()
+            .then((feedSize) => {
+                setFeedSize(feedSize);
+                return postService.getFeed(currentPage.current);
+            })
             .then(setPosts)
             .catch(setError)
             .finally(() => setLoading(false));
+
+        const handleScroll = () => setScrollPosition(window.scrollY);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
     }, [reload])
+
+    useEffect(() => {
+        if (
+            scrollPosition + window.innerHeight === document.body.scrollHeight &&
+            currentPage.current * pageSize < feedSize
+        ) {
+            currentPage.current = currentPage.current + 1;
+            postService.getFeed(currentPage.current)
+                .then(newPosts => {
+                    const currentPosts = [...posts];
+                    currentPosts.push(...newPosts);
+                    setPosts(currentPosts);
+                })
+                .catch(setError);
+        }
+    }, [scrollPosition])
 
     if (loading)
         return <LoadingPage/>

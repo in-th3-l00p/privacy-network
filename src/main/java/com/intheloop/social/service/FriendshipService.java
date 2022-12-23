@@ -12,6 +12,7 @@ import com.intheloop.social.util.exceptions.FriendshipAleardyExists;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -43,7 +44,7 @@ public class FriendshipService {
         friendshipRequestRepository.delete(request);
     }
 
-    public void acceptRequest(FriendshipRequest request) {
+    public Friendship acceptRequest(FriendshipRequest request) {
         Conversation conversation = new Conversation();
         conversation.setName(String.format(
                 "%s and %s conversation",
@@ -56,8 +57,8 @@ public class FriendshipService {
                 request.getReceiver(),
                 conversation
         );
-        friendshipRepository.save(friendship);
         friendshipRequestRepository.delete(request);
+        return friendshipRepository.save(friendship);
     }
 
     public void rejectRequest(FriendshipRequest friendshipRequest) {
@@ -74,6 +75,12 @@ public class FriendshipService {
 
     public List<Friendship> getFriendships(User user) {
         return friendshipRepository.findAllByUserId(user.getId());
+    }
+
+    public User getFriend(Friendship friendship, User user) {
+        if (Objects.equals(user.getId(), friendship.getUser1().getId()))
+            return friendship.getUser2();
+        return friendship.getUser1();
     }
 
     public void deleteFriendship(Friendship friendship) {

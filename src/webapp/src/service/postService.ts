@@ -9,7 +9,9 @@ export interface PostService {
 
     getPosts(userId: number, page: number): Promise<Post[]>;
 
-    getFeed(): Promise<Post[]>;
+    countFeed(): Promise<number>;
+
+    getFeed(page: number): Promise<Post[]>;
 
     likePost(postId: number): Promise<void>;
 
@@ -29,7 +31,7 @@ class PostServiceImpl implements PostService {
             }
         }
 
-        return serverPosts.sort().reverse().map(serverPost => {
+        return serverPosts.sort().map(serverPost => {
             const post: Post = {
                 id: serverPost.id,
                 text: serverPost.text,
@@ -46,13 +48,26 @@ class PostServiceImpl implements PostService {
         })
     }
 
-    async getFeed(): Promise<Post[]> {
+    async countFeed() {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
+        const resp = await axios.get("/api/post/feed/count", {
+            headers: getAuthenticationHeader(token)
+        });
+        return Number(resp.data);
+    }
+
+    async getFeed(page: number) {
         const authentication = getAuthentication();
         if (!authentication.authenticated || !authentication.token)
             throw  UnauthenticatedError
         const resp = await axios.get("/api/post/feed", {
             headers: getAuthenticationHeader(authentication.token),
-            params: {userId: authentication.userId}
+            params: {
+                userId: authentication.userId,
+                page: page
+            }
         });
         if (!Array.isArray(resp.data))
             throw {

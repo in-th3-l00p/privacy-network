@@ -10,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void createPost(User user, PostDTO postDTO) throws Exception {
+    public Post createPost(User user, PostDTO postDTO) throws Exception {
         Post post = new Post();
         post.setText(postDTO.getText());
         post.setPostDate(LocalDateTime.now());
@@ -37,7 +36,11 @@ public class PostService {
         else
             throw new Exception("Invalid visibility.");
 
-        postRepository.save(post);
+        return postRepository.save(post);
+    }
+
+    public List<Post> getUserPosts(User user) {
+        return postRepository.findAllByUser(user).stream().toList();
     }
 
     public List<Post> getUserPosts(User user, int page, int size) {
@@ -58,10 +61,6 @@ public class PostService {
 
     public int countPublicUserPosts(User user) {
         return postRepository.countAllByVisibilityAndUser(Post.Visibility.PUBLIC, user);
-    }
-
-    public Collection<Post> getUserFeed(User user) {
-        return postRepository.findAllByUserId(user.getId());
     }
 
     public void likePost(User user, Post post) {

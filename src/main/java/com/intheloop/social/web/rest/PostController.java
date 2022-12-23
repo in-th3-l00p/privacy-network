@@ -5,6 +5,7 @@ import com.intheloop.social.domain.User;
 import com.intheloop.social.service.FriendshipService;
 import com.intheloop.social.service.PostService;
 import com.intheloop.social.service.UserService;
+import com.intheloop.social.service.feed.FeedService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
 import com.intheloop.social.util.dto.PostDTO;
@@ -12,7 +13,6 @@ import com.intheloop.social.util.dto.PublicUserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,15 +22,18 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
     private final FriendshipService friendshipService;
+    private final FeedService feedService;
 
     public PostController(
             PostService postService,
             UserService userService,
-            FriendshipService friendshipService
+            FriendshipService friendshipService,
+            FeedService feedService
     ) {
         this.postService = postService;
         this.userService = userService;
         this.friendshipService = friendshipService;
+        this.feedService = feedService;
     }
 
     @GetMapping
@@ -91,7 +94,8 @@ public class PostController {
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         try {
-            postService.createPost(user.get(), postDTO);
+            Post post = postService.createPost(user.get(), postDTO);
+            feedService.updateFeedOnPost(user.get(), post);
         } catch (Exception ignored) {
             return ResponseEntity
                     .badRequest()
@@ -102,17 +106,29 @@ public class PostController {
     }
 
     @GetMapping("/feed")
-    public ResponseEntity<?> getFeed() {
+    public ResponseEntity<?> getFeed(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
+    ) {
         Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
-        List<PostDTO> posts = postService
-                .getUserFeed(user.get())
-                .stream()
-                .map((post) -> new PostDTO(post, user.get()))
-                .toList();
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(
+                feedService.
+                        getUserFeed(user.get(), page, size)
+                        .stream()
+                        .map(PostDTO::new)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/feed/count")
+    public ResponseEntity<?> getFeed() {
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
+        if (user.isEmpty())
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+        return ResponseEntity.ok(feedService.countUserFeed(user.get()));
     }
 
     @PutMapping("/like")
