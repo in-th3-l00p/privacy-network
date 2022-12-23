@@ -1,15 +1,16 @@
 import {User} from "../util/serverTypes";
 import axios from "axios";
-import {getAuthenticationHeader} from "../util/authentication";
+import {getAuthenticationHeader, getToken} from "../util/authentication";
+import {UnauthenticatedError} from "../util/errorHandling";
 
 export interface UserService {
     getPublicUser(userId: number): Promise<User>;
 
-    getUser(token: string, userId: number): Promise<User>;
+    getUser(userId: number): Promise<User>;
 
-    getCurrentUser(token: string): Promise<User>;
+    getCurrentUser(): Promise<User>;
 
-    searchUsers(token: string, username: string): Promise<User[]>;
+    searchUsers(username: string): Promise<User[]>;
 }
 
 export function buildUser(user: any) {
@@ -33,7 +34,10 @@ export class UserServiceImpl implements UserService {
         return buildUser(response.data);
     }
 
-    async getUser(token: string, userId: number) {
+    async getUser(userId: number) {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         const response = await axios.get(
             "/api/public/user",
             {
@@ -44,7 +48,10 @@ export class UserServiceImpl implements UserService {
         return buildUser(response.data);
     }
 
-    async getCurrentUser(token: string): Promise<User> {
+    async getCurrentUser(): Promise<User> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         const response = await axios.get(
             "/api/user",
             {headers: getAuthenticationHeader(token)}
@@ -53,7 +60,10 @@ export class UserServiceImpl implements UserService {
         return buildUser(response.data);
     }
 
-    async searchUsers(token: string, username: string): Promise<User[]> {
+    async searchUsers(username: string): Promise<User[]> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         const response = await axios.get(
             "/api/search/users",
             {

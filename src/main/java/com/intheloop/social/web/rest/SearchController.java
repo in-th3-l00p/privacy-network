@@ -29,16 +29,7 @@ public class SearchController {
 
     @GetMapping("/users")
     public ResponseEntity<?> searchUsers(@RequestParam("username") String username) {
-        Optional<String> currentUsername = SecurityUtils.getCurrentUsername();
-        if (currentUsername.isEmpty())
-            return ResponseEntity.ok(
-                    userService
-                            .searchUser(username)
-                            .stream()
-                            .map(PublicUserDTO::new)
-                            .toList()
-            );
-        Optional<User> currentUser = userService.getUserByUsername(currentUsername.get());
+        Optional<User> currentUser = SecurityUtils.getInstance().getCurrentUser();
         if (currentUser.isEmpty())
             return ResponseEntity.ok(
                     userService

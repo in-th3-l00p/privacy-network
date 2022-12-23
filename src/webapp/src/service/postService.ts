@@ -1,18 +1,19 @@
 import {Post, ServerPost} from "../util/serverTypes";
-import {Authentication, getAuthenticationHeader} from "../util/authentication";
+import {getAuthentication, getAuthenticationHeader, getToken} from "../util/authentication";
 import axios from "axios";
 import userService from "./userService";
+import {UnauthenticatedError} from "../util/errorHandling";
 
 export interface PostService {
-    countPosts(token: string, userId: number): Promise<number>;
+    countPosts(userId: number): Promise<number>;
 
-    getPosts(token: string, userId: number, page: number): Promise<Post[]>;
+    getPosts(userId: number, page: number): Promise<Post[]>;
 
-    getFeed(authentication: Authentication): Promise<Post[]>;
+    getFeed(): Promise<Post[]>;
 
-    likePost(token: string, postId: number): Promise<void>;
+    likePost(postId: number): Promise<void>;
 
-    dislikePost(token: string, postId: number): Promise<void>;
+    dislikePost(postId: number): Promise<void>;
 }
 
 class PostServiceImpl implements PostService {
@@ -45,9 +46,10 @@ class PostServiceImpl implements PostService {
         })
     }
 
-    async getFeed(authentication: Authentication): Promise<Post[]> {
-        if (!authentication.token)
-            return [];
+    async getFeed(): Promise<Post[]> {
+        const authentication = getAuthentication();
+        if (!authentication.authenticated || !authentication.token)
+            throw  UnauthenticatedError
         const resp = await axios.get("/api/post/feed", {
             headers: getAuthenticationHeader(authentication.token),
             params: {userId: authentication.userId}
@@ -60,7 +62,10 @@ class PostServiceImpl implements PostService {
         return await this.parsePosts(resp.data);
     }
 
-    async countPosts(token: string, userId: number): Promise<number> {
+    async countPosts(userId: number): Promise<number> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         const resp = await axios.get("/api/post/count", {
             headers: getAuthenticationHeader(token),
             params: {userId}
@@ -68,7 +73,10 @@ class PostServiceImpl implements PostService {
         return Number(resp.data);
     }
 
-    async getPosts(token: string, userId: number, page: number): Promise<Post[]> {
+    async getPosts(userId: number, page: number): Promise<Post[]> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         const resp = await axios.get("/api/post", {
             headers: getAuthenticationHeader(token),
             params: {userId, page}
@@ -81,7 +89,10 @@ class PostServiceImpl implements PostService {
         return await this.parsePosts(resp.data);
     }
 
-    async likePost(token: string, postId: number): Promise<void> {
+    async likePost(postId: number): Promise<void> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         await axios.put(
             "/api/post/like",
             {},
@@ -92,7 +103,10 @@ class PostServiceImpl implements PostService {
         );
     }
 
-    async dislikePost(token: string, postId: number): Promise<void> {
+    async dislikePost(postId: number): Promise<void> {
+        const token = getToken();
+        if (token === null)
+            throw UnauthenticatedError;
         await axios.put(
             "/api/post/dislike",
             {},

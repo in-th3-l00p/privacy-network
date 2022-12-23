@@ -79,14 +79,13 @@ const Feed = () => {
     const [posts, setPosts] = useState<Post[]>();
     const [reload, setReload] = useState<boolean>(false);
 
-    const authentication = useContext(AuthenticationContext);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
         setLoading(true);
         postService
-            .getFeed(authentication)
+            .getFeed()
             .then(setPosts)
             .catch(setError)
             .finally(() => setLoading(false));

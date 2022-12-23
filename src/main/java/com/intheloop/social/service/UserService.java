@@ -1,7 +1,6 @@
 package com.intheloop.social.service;
 
 import com.intheloop.social.domain.User;
-import com.intheloop.social.repository.AuthorityRepository;
 import com.intheloop.social.repository.UserRepository;
 import com.intheloop.social.util.dto.UserDTO;
 import com.intheloop.social.util.exceptions.UserNotFoundException;
@@ -19,17 +18,14 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(
             UserRepository userRepository,
-            AuthorityRepository authorityRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
-        this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 

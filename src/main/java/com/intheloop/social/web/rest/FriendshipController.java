@@ -33,12 +33,9 @@ public class FriendshipController {
 
     @GetMapping
     public ResponseEntity<?> getFriends() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         return ResponseEntity.ok(
                 friendshipService
                         .getFriendships(user.get())
@@ -52,12 +49,11 @@ public class FriendshipController {
     public ResponseEntity<?> getFriendship(
             @RequestParam("friendId") Long friendId
     ) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
+        if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
         Optional<User> friend = userService.getUserById(friendId);
-        if (user.isEmpty() || friend.isEmpty())
+        if (friend.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
         Optional<Friendship> friendship = friendshipService.getFriendship(
                 user.get(), friend.get()
@@ -71,12 +67,9 @@ public class FriendshipController {
 
     @GetMapping("/request/sent")
     public ResponseEntity<?> getSentRequests() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         return ResponseEntity.ok(
                 friendshipService
                         .getRequestedRequests(user.get())
@@ -88,12 +81,9 @@ public class FriendshipController {
 
     @GetMapping("/request/received")
     public ResponseEntity<?> getReceivedRequests() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         return ResponseEntity.ok(
                 friendshipService
                         .getReceivedRequests(user.get())
@@ -108,15 +98,12 @@ public class FriendshipController {
             @RequestParam("requesterId") Long requesterId,
             @RequestParam("receiverId") Long receiverId
     ) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         if (
                 !Objects.equals(user.get().getId(), requesterId) &&
-                        !Objects.equals(user.get().getId(), receiverId)
+                !Objects.equals(user.get().getId(), receiverId)
         )
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         Optional<User> otherUser;
@@ -144,12 +131,9 @@ public class FriendshipController {
 
     @PostMapping("/request")
     public ResponseEntity<?> requestFriend(@RequestParam("userId") Long userId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         Optional<User> receiver = userService.getUserById(userId);
         if (receiver.isEmpty())
@@ -168,12 +152,9 @@ public class FriendshipController {
 
     @PutMapping("/accept")
     public ResponseEntity<?> acceptFriendRequest(@RequestParam("requestId") Long requestId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         Optional<FriendshipRequest> friendshipRequest = friendshipService.getFriendshipRequest(requestId);
         if (
@@ -187,12 +168,9 @@ public class FriendshipController {
 
     @PutMapping("/reject")
     public ResponseEntity<?> rejectFriendRequest(@RequestParam("requestId") Long requestId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         Optional<FriendshipRequest> friendshipRequest = friendshipService.getFriendshipRequest(requestId);
         if (
@@ -206,12 +184,9 @@ public class FriendshipController {
 
     @DeleteMapping("/request")
     public ResponseEntity<?> cancelRequest(@RequestParam("requestId") Long requestId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         Optional<FriendshipRequest> friendshipRequest = friendshipService.getFriendshipRequest(requestId);
         if (
@@ -225,12 +200,9 @@ public class FriendshipController {
 
     @DeleteMapping
     public ResponseEntity<?> deleteFriend(@RequestParam("friendshipId") Long friendshipId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         Optional<Friendship> friendship = friendshipService.getFriendship(friendshipId);
         if (

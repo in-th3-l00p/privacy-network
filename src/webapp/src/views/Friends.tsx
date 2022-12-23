@@ -44,12 +44,10 @@ const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) =
                         <Button
                             variant={"danger"}
                             onClick={() => {
-                                if (authentication.token) {
-                                    friendshipService
-                                        .cancelRequest(authentication.token, request.id)
-                                        .then(() => window.location.href = "/friends/requests")
-                                        .catch(setError);
-                                }
+                                friendshipService
+                                    .cancelRequest(request.id)
+                                    .then(() => window.location.href = "/friends/requests")
+                                    .catch(setError);
                             }}
                         >
                             Cancel
@@ -76,11 +74,10 @@ const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) =
                         <Button
                             variant={"dark"}
                             onClick={() => {
-                                if (authentication.token)
-                                    friendshipService
-                                        .acceptRequest(authentication.token, request.id)
-                                        .then(() => window.location.href = "/friends")
-                                        .catch(setError);
+                                friendshipService
+                                    .acceptRequest(request.id)
+                                    .then(() => window.location.href = "/friends")
+                                    .catch(setError);
                             }}
                         >
                             Accept
@@ -88,11 +85,10 @@ const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) =
                         <Button
                             variant={"danger"}
                             onClick={() => {
-                                if (authentication.token)
-                                    friendshipService
-                                        .rejectRequest(authentication.token, request.id)
-                                        .then(() => window.location.href = "/friends/requests")
-                                        .catch(setError);
+                                friendshipService
+                                    .rejectRequest(request.id)
+                                    .then(() => window.location.href = "/friends/requests")
+                                    .catch(setError);
                             }}
                         >
                             Reject
@@ -142,15 +138,13 @@ const FriendDisplay: React.FC<{ request?: "sent" | "received" }> = ({request}) =
 }
 
 const FriendList = () => {
-    const authentication = useContext(AuthenticationContext);
     const [friends, setFriends] = useState<Friendship[]>();
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
-        if (authentication.token)
-            friendshipService.getFriendships(authentication.token)
-                .then(setFriends)
-                .catch(setError);
+        friendshipService.getFriendships()
+            .then(setFriends)
+            .catch(setError);
     }, []);
 
     if (error)
@@ -175,18 +169,15 @@ const FriendList = () => {
 }
 
 const FriendRequests = () => {
-    const authentication = useContext(AuthenticationContext);
     const [receivedRequests, setReceivedRequests] = useState<ReceivedFriendRequest[]>();
     const [sentRequests, setSentRequests] = useState<SentFriendRequest[]>();
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
-        if (!authentication.token)
-            return;
-        friendshipService.getReceivedFriendshipRequests(authentication.token)
+        friendshipService.getReceivedFriendshipRequests()
             .then(setReceivedRequests)
             .catch(setError);
-        friendshipService.getSentFriendshipRequests(authentication.token)
+        friendshipService.getSentFriendshipRequests()
             .then(setSentRequests)
             .catch(setError);
     }, []);

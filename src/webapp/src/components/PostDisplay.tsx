@@ -30,9 +30,7 @@ const PostDisplay: React.FC<{ post: Post }> = ({post}) => {
                             <Button
                                 variant={currentPost.liked ? "secondary" : "dark"}
                                 onClick={() => {
-                                    if (!authentication.token)
-                                        return;
-                                    postService.likePost(authentication.token, post.id);
+                                    postService.likePost(post.id);
                                     const newPost: Post = {...currentPost};
                                     if (currentPost.liked) {
                                         newPost.liked = false;
@@ -53,9 +51,7 @@ const PostDisplay: React.FC<{ post: Post }> = ({post}) => {
                             <Button
                                 variant={currentPost.disliked ? "secondary" : "dark"}
                                 onClick={() => {
-                                    if (!authentication.token)
-                                        return;
-                                    postService.dislikePost(authentication.token, post.id);
+                                    postService.dislikePost(post.id);
                                     const newPost: Post = {...currentPost};
                                     if (currentPost.disliked) {
                                         newPost.disliked = false;

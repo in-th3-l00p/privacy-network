@@ -17,7 +17,7 @@ export const setAuthentication = async (authenticated: boolean, token: string | 
     localStorage.setItem("authenticated", token ? "true" : "false");
     if (authenticated && token) {
         localStorage.setItem("token", token);
-        const userDetails = await userService.getCurrentUser(token);
+        const userDetails = await userService.getCurrentUser();
         localStorage.setItem("userId", String(userDetails.id));
         localStorage.setItem("username", userDetails.username);
     } else
@@ -31,6 +31,11 @@ export const getAuthentication = (): Authentication => {
         userId: Number(localStorage.getItem("userId")),
         username: localStorage.getItem("username")
     };
+}
+
+export const getToken = (): string | null => {
+    const token = localStorage.getItem("token");
+    return token ? token : null;
 }
 
 export const getAuthenticationHeader = (token: string) => {

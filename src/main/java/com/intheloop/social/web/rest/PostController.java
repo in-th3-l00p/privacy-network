@@ -39,20 +39,18 @@ public class PostController {
             @RequestParam(value = "page", defaultValue = "0") int currentPage,
             @RequestParam(value = "size", defaultValue = "5") int pageSize
     ) {
-        Optional<String> currentUsername = SecurityUtils.getCurrentUsername();
-        if (currentUsername.isEmpty())
+        Optional<User> currentUser = SecurityUtils.getInstance().getCurrentUser();
+        if (currentUser.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> currentUser = userService.getUserByUsername(currentUsername.get());
         Optional<User> user = userService.getUserById(userId);
-        if (currentUser.isEmpty() || user.isEmpty())
+        if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
 
-        PublicUserDTO.Relationship relationship = friendshipService.getRelationship(
-                user.get(), currentUser.get()
-        );
+        PublicUserDTO.Relationship relationship = friendshipService
+                .getRelationship(user.get(), currentUser.get());
         if (
                 relationship == PublicUserDTO.Relationship.FRIENDS ||
-                        Objects.equals(user.get().getId(), currentUser.get().getId())
+                Objects.equals(user.get().getId(), currentUser.get().getId())
         )
             return ResponseEntity.ok(
                     postService.getUserPosts(user.get(), currentPage, pageSize)
@@ -70,20 +68,18 @@ public class PostController {
 
     @GetMapping("/count")
     public ResponseEntity<?> countUserPosts(@RequestParam("userId") Long userId) {
-        Optional<String> currentUsername = SecurityUtils.getCurrentUsername();
-        if (currentUsername.isEmpty())
+        Optional<User> currentUser = SecurityUtils.getInstance().getCurrentUser();
+        if (currentUser.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> currentUser = userService.getUserByUsername(currentUsername.get());
         Optional<User> user = userService.getUserById(userId);
-        if (currentUser.isEmpty() || user.isEmpty())
+        if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
 
-        PublicUserDTO.Relationship relationship = friendshipService.getRelationship(
-                user.get(), currentUser.get()
-        );
+        PublicUserDTO.Relationship relationship = friendshipService
+                .getRelationship(user.get(), currentUser.get());
         if (
                 relationship == PublicUserDTO.Relationship.FRIENDS ||
-                        Objects.equals(user.get().getId(), currentUser.get().getId())
+                Objects.equals(user.get().getId(), currentUser.get().getId())
         )
             return ResponseEntity.ok(postService.countUserPosts(user.get()));
         return ResponseEntity.ok(postService.countPublicUserPosts(user.get()));
@@ -91,13 +87,9 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<?> createPost(@RequestBody PostDTO postDTO) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
         try {
             postService.createPost(user.get(), postDTO);
         } catch (Exception ignored) {
@@ -111,12 +103,9 @@ public class PostController {
 
     @GetMapping("/feed")
     public ResponseEntity<?> getFeed() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
 
         List<PostDTO> posts = postService
                 .getUserFeed(user.get())
@@ -128,12 +117,10 @@ public class PostController {
 
     @PutMapping("/like")
     public ResponseEntity<?> likePost(@RequestParam("postId") Long postId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+
         Optional<Post> post = postService.getPostById(postId);
         if (post.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.postDoesntExistError);
@@ -143,12 +130,10 @@ public class PostController {
 
     @PutMapping("/dislike")
     public ResponseEntity<?> dislikePost(@RequestParam("postId") Long postId) {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
+            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
+
         Optional<Post> post = postService.getPostById(postId);
         if (post.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.postDoesntExistError);

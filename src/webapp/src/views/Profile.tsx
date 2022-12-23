@@ -34,9 +34,9 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
         const [requestId, setRequestId] = useState<number>();
 
         useEffect(() => {
-            if (authentication.token && authentication.userId)
+            if (authentication.userId)
                 friendshipService
-                    .getFriendshipRequestId(authentication.token, user.id, authentication.userId)
+                    .getFriendshipRequestId(user.id, authentication.userId)
                     .then(setRequestId);
         }, []);
 
@@ -44,10 +44,10 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
             <ButtonsContainer>
                 <Button
                     variant={"dark"}
-                    disabled={typeof requestId === undefined}
+                    disabled={typeof requestId === "undefined"}
                     onClick={() => {
-                        if (authentication.token && requestId)
-                            friendshipService.acceptRequest(authentication.token, requestId)
+                        if (typeof requestId !== "undefined")
+                            friendshipService.acceptRequest(requestId)
                                 .then(() => window.location.href = location.pathname);
                     }}
                 >
@@ -57,8 +57,8 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
                     variant={"danger"}
                     disabled={typeof requestId === undefined}
                     onClick={() => {
-                        if (authentication.token && typeof requestId !== "undefined")
-                            friendshipService.rejectRequest(authentication.token, requestId)
+                        if (typeof requestId !== "undefined")
+                            friendshipService.rejectRequest(requestId)
                                 .then(() => window.location.href = location.pathname);
                     }}
                 >
@@ -70,9 +70,9 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
         const [requestId, setRequestId] = useState<number>();
 
         useEffect(() => {
-            if (authentication.token && authentication.userId)
+            if (authentication.userId)
                 friendshipService
-                    .getFriendshipRequestId(authentication.token, authentication.userId, user.id)
+                    .getFriendshipRequestId(authentication.userId, user.id)
                     .then(setRequestId);
         }, []);
 
@@ -82,8 +82,8 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
                     variant={"secondary"}
                     disabled={typeof requestId === "undefined"}
                     onClick={() => {
-                        if (authentication.token && typeof requestId !== "undefined")
-                            friendshipService.cancelRequest(authentication.token, requestId)
+                        if (typeof requestId !== "undefined")
+                            friendshipService.cancelRequest(requestId)
                                 .then(() => window.location.href = location.pathname);
                     }}
                 >
@@ -96,10 +96,9 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
         const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
 
         useEffect(() => {
-            if (authentication.token)
-                friendshipService
-                    .getFriendship(authentication.token, user.id)
-                    .then(setFriendshipId);
+            friendshipService
+                .getFriendship(user.id)
+                .then(setFriendshipId);
         }, [])
 
         return (
@@ -127,10 +126,9 @@ const ActionButtons: React.FC<{ user: User }> = ({user}) => {
             <Button
                 variant={"dark"}
                 onClick={() => {
-                    if (authentication.token)
-                        friendshipService
-                            .sendRequest(authentication.token, user.id)
-                            .then(() => window.location.href = location.pathname);
+                    friendshipService
+                        .sendRequest(user.id)
+                        .then(() => window.location.href = location.pathname);
                 }}
             >
                 Add friend
@@ -151,17 +149,14 @@ const Profile = () => {
     const [error, setError] = useState<ErrorType>();
 
     useEffect(() => {
-        if (authentication.token === null || !params["userId"])
+        if (!params["userId"])
             return;
         userService
-            .getUser(authentication.token, Number(params["userId"]))
+            .getUser(Number(params["userId"]))
             .then(userData => {
                 setUser(userData);
                 if (authentication.token)
-                    return postService.countPosts(
-                        authentication.token,
-                        Number(params["userId"])
-                    );
+                    return postService.countPosts(Number(params["userId"]));
             })
             .then(setPostCount)
             .catch(setError)
@@ -169,17 +164,12 @@ const Profile = () => {
 
     useEffect(() => {
         if (
-            !authentication.token ||
             !params["userId"] ||
             typeof postCount === "undefined" ||
             posts.hasOwnProperty(currentPage)
         )
             return;
-        postService.getPosts(
-            authentication.token,
-            Number(params["userId"]),
-            currentPage
-        )
+        postService.getPosts(Number(params["userId"]), currentPage)
             .then(currentPosts => {
                 const postsCopy = {...posts};
                 postsCopy[currentPage] = currentPosts.reverse();

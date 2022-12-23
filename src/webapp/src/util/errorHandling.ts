@@ -22,3 +22,8 @@ export function getErrorDescription(error: ErrorType) {
         return error.response?.data.description ? error.response.data.description : error.message;
     return error.message;
 }
+
+export const UnauthenticatedError: ErrorType = {
+    name: "Access denied",
+    message: "You are unauthenticated."
+}

@@ -1,7 +1,6 @@
 package com.intheloop.social.web.rest;
 
 import com.intheloop.social.domain.User;
-import com.intheloop.social.service.UserService;
 import com.intheloop.social.util.RestErrors;
 import com.intheloop.social.util.SecurityUtils;
 import com.intheloop.social.util.dto.PublicUserDTO;
@@ -15,18 +14,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @GetMapping
     public ResponseEntity<?> getCurrentUserDetails() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.badRequest().body(RestErrors.unauthorizedError);
-        Optional<User> user = userService.getUserByUsername(username.get());
+        Optional<User> user = SecurityUtils.getInstance().getCurrentUser();
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
         return ResponseEntity.ok(new PublicUserDTO(user.get()));

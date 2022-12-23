@@ -33,16 +33,14 @@ public class PublicUserController {
         Optional<User> user = userService.getUserById(userId);
         if (user.isEmpty())
             return ResponseEntity.badRequest().body(RestErrors.userNotFoundError);
-
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return ResponseEntity.ok(new PublicUserDTO(user.get()));
-        Optional<User> currentUser = userService.getUserByUsername(username.get());
-        if (currentUser.isEmpty())
-            return ResponseEntity.ok(new PublicUserDTO(user.get()));
-        return ResponseEntity.ok(new PublicUserDTO(
-                user.get(),
-                friendshipService.getRelationship(user.get(), currentUser.get())
+        Optional<User> optionalCurrentUser = SecurityUtils.getInstance().getCurrentUser();
+        return optionalCurrentUser.map(currentUser -> ResponseEntity.ok(
+                new PublicUserDTO(
+                    user.get(),
+                    friendshipService.getRelationship(user.get(), currentUser)
+                )
+        )).orElseGet(() -> ResponseEntity.ok(
+                new PublicUserDTO(user.get())
         ));
     }
 }

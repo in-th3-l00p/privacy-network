@@ -26,10 +26,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
                 variant={"dark"}
                 style={{aspectRatio: "1/1", width: "100%"}}
                 onClick={() => {
-                    if (authentication.token)
-                        friendshipService
-                            .sendRequest(authentication.token, userId)
-                            .then(() => window.location.href = location.pathname);
+                    friendshipService
+                        .sendRequest(userId)
+                        .then(() => window.location.href = location.pathname);
                 }}
             >
                 Add friend
@@ -39,9 +38,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
         const [requestId, setRequestId] = useState<number>();
 
         useEffect(() => {
-            if (authentication.token && authentication.userId)
+            if (authentication.userId)
                 friendshipService
-                    .getFriendshipRequestId(authentication.token, userId, authentication.userId)
+                    .getFriendshipRequestId(userId, authentication.userId)
                     .then(setRequestId);
         }, []);
 
@@ -52,9 +51,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
                     style={{aspectRatio: "1/1", width: "100%"}}
                     disabled={typeof requestId === "undefined"}
                     onClick={() => {
-                        if (authentication.token && requestId)
+                        if (requestId)
                             friendshipService
-                                .acceptRequest(authentication.token, requestId)
+                                .acceptRequest(requestId)
                                 .then(() => window.location.href = location.pathname);
                     }}
                 >
@@ -64,9 +63,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
                     variant={"danger"}
                     style={{aspectRatio: "1/1", width: "100%"}}
                     onClick={() => {
-                        if (authentication.token && requestId)
+                        if (requestId)
                             friendshipService
-                                .rejectRequest(authentication.token, requestId)
+                                .rejectRequest(requestId)
                                 .then(() => window.location.href = location.pathname);
                     }}
                 >
@@ -78,9 +77,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
         const [requestId, setRequestId] = useState<number>();
 
         useEffect(() => {
-            if (authentication.token && authentication.userId)
+            if (authentication.userId)
                 friendshipService
-                    .getFriendshipRequestId(authentication.token, authentication.userId, userId)
+                    .getFriendshipRequestId(authentication.userId, userId)
                     .then(setRequestId);
         }, []);
 
@@ -90,9 +89,9 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({userId, relationship})
                 style={{aspectRatio: "1/1", width: "100%"}}
                 disabled={typeof requestId === "undefined"}
                 onClick={() => {
-                    if (authentication.token && requestId)
+                    if (requestId)
                         friendshipService
-                            .cancelRequest(authentication.token, requestId)
+                            .cancelRequest(requestId)
                             .then(() => window.location.href = location.pathname);
                 }}
             >
@@ -156,11 +155,10 @@ const Search = () => {
         }
 
         search.setQuery(params["query"]);
-        if (authentication.token)
-            userService.searchUsers(authentication.token, params.query)
-                .then(users => setResults(users.filter(user => user.username !== authentication.username)))
-                .catch(setError)
-                .finally(() => setLoading(false));
+        userService.searchUsers(params.query)
+            .then(users => setResults(users.filter(user => user.username !== authentication.username)))
+            .catch(setError)
+            .finally(() => setLoading(false));
     }, [])
 
     if (error)

@@ -1,6 +1,5 @@
 package com.intheloop.social.web.rest;
 
-import com.intheloop.social.domain.User;
 import com.intheloop.social.security.authentication.TokenManager;
 import com.intheloop.social.service.UserService;
 import com.intheloop.social.util.RestErrors;
@@ -19,8 +18,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -90,10 +87,9 @@ public class AuthenticationController {
 
     @GetMapping("/auth/valid")
     public boolean valid() {
-        Optional<String> username = SecurityUtils.getCurrentUsername();
-        if (username.isEmpty())
-            return false;
-        Optional<User> user = userService.getUserByUsername(username.get());
-        return user.isPresent();
+        return SecurityUtils
+                .getInstance()
+                .getCurrentUser()
+                .isPresent();
     }
 }

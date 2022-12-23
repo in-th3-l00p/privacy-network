@@ -1,6 +1,5 @@
 import {User} from "../util/serverTypes";
-import React, {useContext} from "react";
-import {AuthenticationContext} from "../util/authentication";
+import React from "react";
 import {Button, Modal} from "react-bootstrap";
 import friendshipService from "../service/friendshipService";
 
@@ -13,8 +12,6 @@ interface RemoveFriendModalProps {
 }
 
 const RemoveFriendModal: React.FC<RemoveFriendModalProps> = ({friend, show, setShow, friendshipId, redirectUrl}) => {
-    const authentication = useContext(AuthenticationContext);
-
     return (
         <Modal show={show} onHide={() => setShow(false)} backdrop={"static"}>
             <Modal.Header closeButton>
@@ -28,9 +25,9 @@ const RemoveFriendModal: React.FC<RemoveFriendModalProps> = ({friend, show, setS
                 <Button
                     variant={"danger"}
                     onClick={() => {
-                        if (authentication.token)
-                            friendshipService.removeFriendship(authentication.token, friendshipId)
-                                .then(() => window.location.href = redirectUrl);
+                        friendshipService
+                            .removeFriendship(friendshipId)
+                            .then(() => window.location.href = redirectUrl);
                     }}
                 >
                     Confirm
