@@ -15,12 +15,10 @@ public class Message {
     @Column(nullable = false)
     private String content;
 
-    public Message() {
-    }
+    @ManyToOne
+    private Conversation conversation;
 
-    public Message(User user, String content) {
-        this.user = user;
-        this.content = content;
+    public Message() {
     }
 
     public Long getId() {
@@ -45,5 +43,13 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Conversation getConversation() {
+        return conversation;
+    }
+
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
     }
 }

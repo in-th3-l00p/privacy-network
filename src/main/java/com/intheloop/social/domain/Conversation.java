@@ -14,14 +14,13 @@ public class Conversation {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany
-    Set<Message> messages;
+    @OneToMany(mappedBy = "conversation")
+    private Set<Message> messages;
+
+    @OneToOne(mappedBy = "conversation")
+    private Friendship friendship;
 
     public Conversation() {
-    }
-
-    public Conversation(String name) {
-        this.name = name;
     }
 
     public Long getId() {
@@ -46,5 +45,13 @@ public class Conversation {
 
     public void setMessages(Set<Message> messages) {
         this.messages = messages;
+    }
+
+    public Friendship getFriendship() {
+        return friendship;
+    }
+
+    public void setFriendship(Friendship friendship) {
+        this.friendship = friendship;
     }
 }

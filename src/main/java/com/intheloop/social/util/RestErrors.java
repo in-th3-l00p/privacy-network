@@ -60,4 +60,9 @@ public class RestErrors {
             "Post not found",
             "The given post doesn't exist."
     );
+
+    public static ServerError conversationDoesntExistError = new ServerError(
+            "Conversation not found",
+            "The given friendship has no conversation."
+    );
 }

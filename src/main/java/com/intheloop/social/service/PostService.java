@@ -29,7 +29,7 @@ public class PostService {
         post.setText(postDTO.getText());
         post.setPostDate(LocalDateTime.now());
         post.setUser(user);
-        if (Objects.equals(postDTO.getVisibility(), "public"))
+        if (Objects.equals(postDTO.getVisibility(), "static"))
             post.setVisibility(Post.Visibility.PUBLIC);
         else if (Objects.equals(postDTO.getVisibility(), "private"))
             post.setVisibility(Post.Visibility.PRIVATE);

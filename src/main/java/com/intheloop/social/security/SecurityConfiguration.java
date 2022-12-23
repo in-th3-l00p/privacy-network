@@ -31,6 +31,7 @@ public class SecurityConfiguration {
                         authorize
                                 .requestMatchers("/api/login", "/api/register", "/api/activate", "/auth/valid").permitAll()
                                 .requestMatchers("/api/public/**").permitAll()
+                                .requestMatchers("/static/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
